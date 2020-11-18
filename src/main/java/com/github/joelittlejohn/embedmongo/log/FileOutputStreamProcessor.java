@@ -54,15 +54,15 @@ public class FileOutputStreamProcessor implements IStreamProcessor {
         process("\n");
     }
 
-    private void setLogFile(String logFile) {
-        if (logFile == null || logFile.trim().length() == 0) {
+    private synchronized void setLogFile(String logFile) {
+        if (logFile == null || logFile.trim().isEmpty()) {
             throw new IllegalArgumentException("no logFile given");
         }
         this.logFile = logFile;
     }
 
-    private void setEncoding(String encoding) {
-        if (encoding == null || encoding.trim().length() == 0) {
+    private synchronized void setEncoding(String encoding) {
+        if (encoding == null || encoding.trim().isEmpty()) {
             throw new IllegalArgumentException("no encoding given");
         }
         this.encoding = encoding;

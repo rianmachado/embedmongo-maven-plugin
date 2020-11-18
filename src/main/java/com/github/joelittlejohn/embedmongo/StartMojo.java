@@ -62,219 +62,214 @@ import de.flapdoodle.embed.process.store.IArtifactStore;
  * When invoked, this goal starts an instance of mongo. The required binaries
  * are downloaded if no mongo release is found in <code>~/.embedmongo</code>.
  * 
- * @see <a
- *      href="http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de">http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de</a>
+ * @see <a href=
+ *      "http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de">http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de</a>
  */
-@Mojo(name="start", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
+@Mojo(name = "start", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
 public class StartMojo extends AbstractEmbeddedMongoMojo {
 
-    private static final String PACKAGE_NAME = StartMojo.class.getPackage().getName();
-    public static final String MONGOD_CONTEXT_PROPERTY_NAME = PACKAGE_NAME + ".mongod";
+	private static final String PACKAGE_NAME = StartMojo.class.getPackage().getName();
+	public static final String MONGOD_CONTEXT_PROPERTY_NAME = PACKAGE_NAME + ".mongod";
 
-    @Override
-    protected void savePortToProjectProperties(int port) {
-        super.savePortToProjectProperties(port);
-    }
+	@Override
+	protected void savePortToProjectProperties(int port) {
+		super.savePortToProjectProperties(port);
+	}
 
-    /**
-     * The location of a directory that will hold the MongoDB data files.
-     * 
-     * @since 0.1.0
-     */
-    @Parameter(property = "embedmongo.databaseDirectory")
-    private File databaseDirectory;
+	/**
+	 * The location of a directory that will hold the MongoDB data files.
+	 * 
+	 * @since 0.1.0
+	 */
+	@Parameter(property = "embedmongo.databaseDirectory")
+	private File databaseDirectory;
 
-    /**
-     * An IP address for the MongoDB instance to be bound to during its
-     * execution.
-     * 
-     * @since 0.1.4
-     */
-    @Parameter(property = "embedmongo.bindIp")
-    private String bindIp;
+	/**
+	 * An IP address for the MongoDB instance to be bound to during its execution.
+	 * 
+	 * @since 0.1.4
+	 */
+	@Parameter(property = "embedmongo.bindIp")
+	private String bindIp;
 
-    /**
-     * @since 0.1.3
-     */
-    @Parameter(property = "embedmongo.logging", defaultValue = "console")
-    private String logging;
+	/**
+	 * @since 0.1.3
+	 */
+	@Parameter(property = "embedmongo.logging", defaultValue = "console")
+	private String logging;
 
-    /**
-     * @since 0.1.7
-     */
-    @Parameter(property = "embedmongo.logFile", defaultValue = "embedmongo.log")
-    private String logFile;
+	/**
+	 * @since 0.1.7
+	 */
+	@Parameter(property = "embedmongo.logFile", defaultValue = "embedmongo.log")
+	private String logFile;
 
-    /**
-     * @since 0.1.7
-     */
-    @Parameter(property = "embedmongo.logFileEncoding", defaultValue = "utf-8")
-    private String logFileEncoding;
+	/**
+	 * @since 0.1.7
+	 */
+	@Parameter(property = "embedmongo.logFileEncoding", defaultValue = "utf-8")
+	private String logFileEncoding;
 
-    /**
-     * The base URL to be used when downloading MongoDB
-     * 
-     * @since 0.1.10
-     */
-    @Parameter(property = "embedmongo.downloadPath", defaultValue = "http://fastdl.mongodb.org/")
-    private String downloadPath;
+	/**
+	 * The base URL to be used when downloading MongoDB
+	 * 
+	 * @since 0.1.10
+	 */
+	@Parameter(property = "embedmongo.downloadPath", defaultValue = "http://fastdl.mongodb.org/")
+	private String downloadPath;
 
-    /**
-     * Should authorization be enabled for MongoDB
-     */
-    @Parameter(property = "embedmongo.authEnabled", defaultValue = "false")
-    private boolean authEnabled;
+	/**
+	 * Should authorization be enabled for MongoDB
+	 */
+	@Parameter(property = "embedmongo.authEnabled", defaultValue = "false")
+	private boolean authEnabled;
 
-    /**
-     * The path for the UNIX socket
-     * @since 0.3.5
-     */
-    @Parameter(property = "embedmongo.unixSocketPrefix")
-    private String unixSocketPrefix;
+	/**
+	 * The path for the UNIX socket
+	 * 
+	 * @since 0.3.5
+	 */
+	@Parameter(property = "embedmongo.unixSocketPrefix")
+	private String unixSocketPrefix;
 
-    @Parameter(property = "embedmongo.journal", defaultValue = "false")
-    private boolean journal;
-    
-    /**
-     * The storageEngine which shall be used
-     * 
-     * @since 0.3.4
-     */
-    @Parameter(property = "embedmongo.storageEngine", defaultValue = "mmapv1")
-    private String storageEngine;
+	@Parameter(property = "embedmongo.journal", defaultValue = "false")
+	private boolean journal;
 
-    @Parameter( defaultValue = "${settings}", readonly = true )
-    protected Settings settings;
+	/**
+	 * The storageEngine which shall be used
+	 * 
+	 * @since 0.3.4
+	 */
+	@Parameter(property = "embedmongo.storageEngine", defaultValue = "mmapv1")
+	private String storageEngine;
 
-    @Override
-    protected void onSkip() {
-        getLog().debug("skip=true, not starting embedmongo");
-    }
+	@Parameter(defaultValue = "${settings}", readonly = true)
+	protected Settings settings;
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void executeStart() throws MojoExecutionException, MojoFailureException {
+	@Override
+	protected void onSkip() {
+		getLog().debug("skip=true, not starting embedmongo");
+	}
 
-        MongodExecutable executable;
-        try {
+	@Override
+	@SuppressWarnings("unchecked")
+	public void executeStart() throws MojoExecutionException, MojoFailureException {
 
-            final List<String> mongodArgs = this.createMongodArgsList(); 
-            final ICommandLinePostProcessor commandLinePostProcessor = new ICommandLinePostProcessor() {
-                @Override
-                public List<String> process(final Distribution distribution, final List<String> args) {
-                    args.addAll(mongodArgs);
-                    return args;
-                }
-            };
+		MongodExecutable executable;
+		try {
 
-            IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
-                    .defaults(Command.MongoD)
-                    .processOutput(getOutputConfig())
-                    .artifactStore(getArtifactStore())
-                    .commandLinePostProcessor(commandLinePostProcessor)
-                    .build();
+			final List<String> mongodArgs = this.createMongodArgsList();
+			final ICommandLinePostProcessor commandLinePostProcessor = new ICommandLinePostProcessor() {
+				@Override
+				public List<String> process(final Distribution distribution, final List<String> args) {
+					args.addAll(mongodArgs);
+					return args;
+				}
+			};
 
-            int port = getPort();
+			IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder().defaults(Command.MongoD)
+					.processOutput(getOutputConfig()).artifactStore(getArtifactStore())
+					.commandLinePostProcessor(commandLinePostProcessor).build();
 
-            if (isRandomPort()) {
-                port = NetworkUtils.allocateRandomPort();
-            }
-            savePortToProjectProperties(port);
+			int port = getPort();
 
-            IMongodConfig config = new MongodConfigBuilder()
-                    .version(getVersion()).net(new Net(bindIp, port, NetworkUtils.localhostIsIPv6()))
-                    .replication(new Storage(getDataDirectory(), null, 0))
-                    .cmdOptions(new MongoCmdOptionsBuilder()
-                            .enableAuth(authEnabled)
-                            .useNoJournal(!journal)
-                            .useStorageEngine(storageEngine)
-                            .build())
-                    .build();
+			if (isRandomPort()) {
+				port = NetworkUtils.allocateRandomPort();
+			}
+			savePortToProjectProperties(port);
 
-            executable = MongodStarter.getInstance(runtimeConfig).prepare(config);
-        } catch (DistributionException e) {
-            throw new MojoExecutionException("Failed to download MongoDB distribution: " + e.withDistribution(), e);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Unable to Config MongoDB: ", e);
-        }
+			IMongodConfig config = new MongodConfigBuilder().version(getVersion())
+					.net(new Net(bindIp, port, NetworkUtils.localhostIsIPv6()))
+					.replication(new Storage(getDataDirectory(), null, 0)).cmdOptions(new MongoCmdOptionsBuilder()
+							.enableAuth(authEnabled).useNoJournal(!journal).useStorageEngine(storageEngine).build())
+					.build();
 
-        try {
-            MongodProcess mongod = executable.start();
+			executable = MongodStarter.getInstance(runtimeConfig).prepare(config);
+		} catch (DistributionException e) {
+			throw new MojoExecutionException("Failed to download MongoDB distribution: " + e.withDistribution(), e);
+		} catch (IOException e) {
+			throw new MojoExecutionException("Unable to Config MongoDB: ", e);
+		}
 
-            if (isWait()) {
-                while (true) {
-                    try {
-                        TimeUnit.MINUTES.sleep(5);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                }
-            }
+		try {
+			MongodProcess mongod = executable.start();
 
-            getPluginContext().put(MONGOD_CONTEXT_PROPERTY_NAME, mongod);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Unable to start the mongod", e);
-        }
-    }
+//RIAN
+//			if (isWait()) {
+				while (isWait()) {
+					try {
+						TimeUnit.MINUTES.sleep(5);
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+				}
+//			}
 
-    private List<String> createMongodArgsList() {
-        List<String> mongodArgs = new ArrayList<String>();
+			getPluginContext().put(MONGOD_CONTEXT_PROPERTY_NAME, mongod);
+		} catch (IOException e) {
+			throw new MojoExecutionException("Unable to start the mongod", e);
+		}
+	}
 
-        if (System.getProperty("os.name").toLowerCase().indexOf("win") == -1 
-            && this.unixSocketPrefix != null && !this.unixSocketPrefix.isEmpty()) {
-            mongodArgs.add("--unixSocketPrefix=" + this.unixSocketPrefix);
-        }
+	private List<String> createMongodArgsList() {
+		List<String> mongodArgs = new ArrayList<String>();
 
-        return mongodArgs;
-    }
+		if (System.getProperty("os.name").toLowerCase().indexOf("win") == -1 && this.unixSocketPrefix != null
+				&& !this.unixSocketPrefix.isEmpty()) {
+			mongodArgs.add("--unixSocketPrefix=" + this.unixSocketPrefix);
+		}
 
-    private ProcessOutput getOutputConfig() throws MojoFailureException {
+		return mongodArgs;
+	}
 
-        LoggingStyle loggingStyle = LoggingStyle.valueOf(logging.toUpperCase());
+	private ProcessOutput getOutputConfig() throws MojoFailureException {
 
-        switch (loggingStyle) {
-            case CONSOLE:
-                return Loggers.console();
-            case FILE:
-                return Loggers.file(logFile, logFileEncoding);
-            case NONE:
-                return Loggers.none();
-            default:
-                throw new MojoFailureException("Unexpected logging style encountered: \"" + logging + "\" -> " +
-                        loggingStyle);
-        }
+		LoggingStyle loggingStyle = LoggingStyle.valueOf(logging.toUpperCase());
 
-    }
+		switch (loggingStyle) {
+		case CONSOLE:
+			return Loggers.console();
+		case FILE:
+			return Loggers.file(logFile, logFileEncoding);
+		case NONE:
+			return Loggers.none();
+		default:
+			throw new MojoFailureException(
+					"Unexpected logging style encountered: \"" + logging + "\" -> " + loggingStyle);
+		}
 
-    private IArtifactStore getArtifactStore() {
-        IDownloadConfig downloadConfig = new DownloadConfigBuilder().defaultsForCommand(Command.MongoD).proxyFactory(getProxyFactory(settings)).downloadPath(downloadPath).build();
-        return new ExtractedArtifactStoreBuilder().defaults(Command.MongoD).download(downloadConfig).build();
-    }
+	}
 
-    public IProxyFactory getProxyFactory(Settings settings) {
-        URI downloadUri = URI.create(downloadPath);
-        final String downloadHost = downloadUri.getHost();
-        final String downloadProto = downloadUri.getScheme();
+	private IArtifactStore getArtifactStore() {
+		IDownloadConfig downloadConfig = new DownloadConfigBuilder().defaultsForCommand(Command.MongoD)
+				.proxyFactory(getProxyFactory(settings)).downloadPath(downloadPath).build();
+		return new ExtractedArtifactStoreBuilder().defaults(Command.MongoD).download(downloadConfig).build();
+	}
 
-        if (settings.getProxies() != null) {
-            for (org.apache.maven.settings.Proxy proxy : (List<org.apache.maven.settings.Proxy>) settings.getProxies()) {
-                if (proxy.isActive() 
-                        && equalsIgnoreCase(proxy.getProtocol(), downloadProto) 
-                        && !contains(proxy.getNonProxyHosts(), downloadHost)) {
-                    return new HttpProxyFactory(proxy.getHost(), proxy.getPort());
-                }
-            }
-        }
-        
-        return new NoProxyFactory();
-    }
+	public IProxyFactory getProxyFactory(Settings settings) {
+		URI downloadUri = URI.create(downloadPath);
+		final String downloadHost = downloadUri.getHost();
+		final String downloadProto = downloadUri.getScheme();
 
-    private String getDataDirectory() {
-        if (databaseDirectory != null) {
-            return databaseDirectory.getAbsolutePath();
-        } else {
-            return null;
-        }
-    }
+		if (settings.getProxies() != null) {
+			for (org.apache.maven.settings.Proxy proxy : (List<org.apache.maven.settings.Proxy>) settings
+					.getProxies()) {
+				if (proxy.isActive() && equalsIgnoreCase(proxy.getProtocol(), downloadProto)
+						&& !contains(proxy.getNonProxyHosts(), downloadHost)) {
+					return new HttpProxyFactory(proxy.getHost(), proxy.getPort());
+				}
+			}
+		}
+
+		return new NoProxyFactory();
+	}
+
+	private String getDataDirectory() {
+		if (databaseDirectory != null) {
+			return databaseDirectory.getAbsolutePath();
+		} else {
+			return null;
+		}
+	}
 
 }

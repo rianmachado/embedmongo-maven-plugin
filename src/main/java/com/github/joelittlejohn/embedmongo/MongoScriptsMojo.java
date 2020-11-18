@@ -41,100 +41,108 @@ import com.mongodb.MongoException;
 @Mojo(name = "mongo-scripts", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
 public class MongoScriptsMojo extends AbstractEmbeddedMongoMojo {
 
-    /**
-     * Folder that contains all scripts to execute.
-     */
-    @Parameter(property = "scriptsDirectory", required = true)
-    private File scriptsDirectory;
+	/**
+	 * Folder that contains all scripts to execute.
+	 */
+	@Parameter(property = "scriptsDirectory", required = true)
+	private File scriptsDirectory;
 
-    /**
-     * Charset encoding to use for parsing the scripts.  If not assigned,
-     * the underlying encoding of the operating system will be
-     * used
-     */
-    @Parameter(property = "scriptCharsetEncoding", required = false)
-    private String scriptCharsetEncoding;
+	/**
+	 * Charset encoding to use for parsing the scripts. If not assigned, the
+	 * underlying encoding of the operating system will be used
+	 */
+	@Parameter(property = "scriptCharsetEncoding", required = false)
+	private String scriptCharsetEncoding;
 
-    /**
-     * The name of the database where data will be stored.
-     */
-    @Parameter(property = "databaseName", required = true)
-    private String databaseName;
+	/**
+	 * The name of the database where data will be stored.
+	 */
+	@Parameter(property = "databaseName", required = true)
+	private String databaseName;
 
-    public MongoScriptsMojo() {
-    }
+	public MongoScriptsMojo() {
+	}
 
-    MongoScriptsMojo(File scriptsDirectory, int port, String databaseName, String scriptCharsetEncoding) {
-        super(port);
-        this.scriptsDirectory = scriptsDirectory;
-        this.databaseName = databaseName;
-        this.scriptCharsetEncoding = scriptCharsetEncoding;
-    }
+	MongoScriptsMojo(File scriptsDirectory, int port, String databaseName, String scriptCharsetEncoding) {
+		super(port);
+		this.scriptsDirectory = scriptsDirectory;
+		this.databaseName = databaseName;
+		this.scriptCharsetEncoding = scriptCharsetEncoding;
+	}
 
-    @Override
-    public void executeStart() throws MojoExecutionException, MojoFailureException {
-        DB db = connectToMongoAndGetDatabase();
+	@Override
+	public void executeStart() throws MojoExecutionException, MojoFailureException {
+		DB db = connectToMongoAndGetDatabase();
 
-        if (scriptsDirectory.isDirectory()) {
-            Scanner scanner = null;
-            StringBuilder instructions = new StringBuilder();
-            File[] files = scriptsDirectory.listFiles();
+		if (scriptsDirectory.isDirectory()) {
+			Scanner scanner = null;
+			StringBuilder instructions = new StringBuilder();
+			File[] files = scriptsDirectory.listFiles();
 
-            if (files == null) {
-                getLog().info("Can't read scripts directory: " + scriptsDirectory.getAbsolutePath());
+			if (files == null) {
+				getLog().info("Can't read scripts directory: " + scriptsDirectory.getAbsolutePath());
 
-            } else {
-                getLog().info("Folder " + scriptsDirectory.getAbsolutePath() + " contains " + files.length + " file(s):");
+			} else {
+				getLog().info(
+						"Folder " + scriptsDirectory.getAbsolutePath() + " contains " + files.length + " file(s):");
 
-                for (File file : files) {
-                    if (file.isFile()) {
-                        try {
-                            if (scriptCharsetEncoding == null) {
-                                scanner = new Scanner(file);
-                            } else {
-                                // no need to check encoding, the constructor throws
-                                // an IllegalArgumentException if the charset cannot be determined
-                                // from the provided value.
-                                scanner = new Scanner(file, scriptCharsetEncoding);
-                            }
+				for (File file : files) {
+					if (file.isFile()) {
+						try {
+							if (scriptCharsetEncoding == null) {
+								scanner = new Scanner(file);
+							} else {
+								// no need to check encoding, the constructor throws
+								// an IllegalArgumentException if the charset cannot be determined
+								// from the provided value.
+								scanner = new Scanner(file, scriptCharsetEncoding);
+							}
 
-                            while (scanner.hasNextLine()) {
-                                instructions.append(scanner.nextLine()).append("\n");
-                            }
-                        } catch (FileNotFoundException e) {
-                            throw new MojoExecutionException("Unable to find file with name '" + file.getName() + "'", e);
-                        } catch (IllegalArgumentException e) {
-                            throw new MojoExecutionException("Unable to determine charset encoding for provided charset '" + scriptCharsetEncoding + "'", e);
-                        } finally {
-                            if (scanner != null) {
-                                scanner.close();
-                            }
-                        }
-                        CommandResult result;
-                        try {
-                            result = db.doEval("(function() {" + instructions.toString() + "})();", new Object[0]);
-                        } catch (MongoException e) {
-                            throw new MojoExecutionException("Unable to execute file with name '" + file.getName() + "'", e);
-                        }
-                        if (!result.ok()) {
-                            getLog().error("- file " + file.getName() + " parsed with error: " + result.getErrorMessage());
-                            throw new MojoExecutionException("Error while executing instructions from file '" + file.getName() + "': " + result.getErrorMessage(), result.getException());
-                        }
-                        getLog().info("- file " + file.getName() + " parsed successfully");
-                    }
-                }
-            }
-            getLog().info("Data initialized with success");
-        }
-    }
+							while (scanner.hasNextLine()) {
+								instructions.append(scanner.nextLine()).append("\n");
+							}
+						} catch (FileNotFoundException e) {
+							throw new MojoExecutionException("Unable to find file with name '" + file.getName() + "'",
+									e);
+						} catch (IllegalArgumentException e) {
+							throw new MojoExecutionException(
+									"Unable to determine charset encoding for provided charset '"
+											+ scriptCharsetEncoding + "'",
+									e);
+						} finally {
+							if (scanner != null) {
+								scanner.close();
+							}
+						}
+						CommandResult result;
+						try {
+							result = db.doEval("(function() {" + instructions.toString() + "})();", new Object[0]);
+						} catch (MongoException e) {
+							throw new MojoExecutionException(
+									"Unable to execute file with name '" + file.getName() + "'", e);
+						}
+						if (!result.ok()) {
+							getLog().error(
+									"- file " + file.getName() + " parsed with error: " + result.getErrorMessage());
+							throw new MojoExecutionException("Error while executing instructions from file '"
+									+ file.getName() + "': " + result.getErrorMessage(), result.getException());
+						}
+						getLog().info("- file " + file.getName() + " parsed successfully");
+					}
+				}
+			}
+			getLog().info("Data initialized with success");
+		}
+	}
 
-    DB connectToMongoAndGetDatabase() throws MojoExecutionException {
-        if (databaseName == null || databaseName.trim().length() == 0) {
-            throw new MojoExecutionException("Database name is missing");
-        }
+	DB connectToMongoAndGetDatabase() throws MojoExecutionException {
+		if (databaseName == null || databaseName.trim().length() == 0) {
+			throw new MojoExecutionException("Database name is missing");
+		}
 
-        MongoClient mongoClient = new MongoClient("localhost", getPort());
-        getLog().info("Connected to MongoDB");
-        return mongoClient.getDB(databaseName);
-    }
+		try (MongoClient mongoClient = new MongoClient("localhost", getPort())) {
+			getLog().info("Connected to MongoDB");
+			return mongoClient.getDB(databaseName);
+		}
+	}
 }
