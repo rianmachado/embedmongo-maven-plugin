@@ -15,13 +15,10 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import de.flapdoodle.embed.mongo.MongoImportExecutable;
-import de.flapdoodle.embed.mongo.MongoImportProcess;
-import de.flapdoodle.embed.mongo.MongoImportStarter;
-import de.flapdoodle.embed.mongo.config.IMongoImportConfig;
-import de.flapdoodle.embed.mongo.config.MongoImportConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.config.Timeout;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -30,9 +27,13 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import de.flapdoodle.embed.mongo.MongoImportExecutable;
+import de.flapdoodle.embed.mongo.MongoImportProcess;
+import de.flapdoodle.embed.mongo.MongoImportStarter;
+import de.flapdoodle.embed.mongo.config.IMongoImportConfig;
+import de.flapdoodle.embed.mongo.config.MongoImportConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.config.Timeout;
 
 @Mojo(name="mongo-import", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
 public class MongoImportMojo extends AbstractEmbeddedMongoMojo {

@@ -15,11 +15,11 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import de.flapdoodle.embed.process.runtime.Network;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+
+import de.flapdoodle.embed.process.runtime.Network;
 
 public final class NetworkUtils {
 

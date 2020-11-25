@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 package com.github.joelittlejohn.embedmongo;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.substringAfterLast;
+import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 import java.io.File;
 

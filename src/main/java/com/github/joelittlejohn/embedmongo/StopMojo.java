@@ -17,10 +17,10 @@ package com.github.joelittlejohn.embedmongo;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-
-import de.flapdoodle.embed.mongo.MongodProcess;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+
+import de.flapdoodle.embed.mongo.MongodProcess;
 
 /**
  * When invoked, this goal stops an instance of mojo that was started by this
