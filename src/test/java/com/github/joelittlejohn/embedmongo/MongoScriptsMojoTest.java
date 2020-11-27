@@ -16,9 +16,10 @@
 package com.github.joelittlejohn.embedmongo;
 
 import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -34,6 +35,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.junit.MockitoJUnitRunner;
+
 import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.EmbedMongoDB;
@@ -41,109 +43,117 @@ import com.mongodb.EmbedMongoDB;
 @RunWith(MockitoJUnitRunner.class)
 public class MongoScriptsMojoTest {
 
-    @Rule
-    public TemporaryFolder createSchemaFolder = new TemporaryFolder();
+	@Rule
+	public TemporaryFolder createSchemaFolder = new TemporaryFolder();
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
-    private final static int PORT = 27017;
-    private File rootFolder;
-    private File rootFolderWithError;
+	private final static int PORT = 27017;
+	private File rootFolder;
+	private File rootFolderWithError;
 
-    @Test public void
-    should_execute_instructions() throws IOException {
-        initFolder();
-        try {
-            new MongoScriptsMojoForTest(rootFolder, PORT, "myDB", null).execute();
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail("Should not fail!");
-        }
-    }
+	@Test
+	public void should_execute_instructions() throws IOException {
+		initFolder();
+		try {
+			new MongoScriptsMojoForTest(rootFolder, PORT, "myDB", null).execute();
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Should not fail!");
+		}
+	}
 
-    @Test public void
-    should_fail_when_database_name_is_not_provided() throws MojoFailureException, MojoExecutionException, IOException {
-        initFolder();
+	@Test
+	public void should_fail_when_database_name_is_not_provided()
+			throws MojoFailureException, MojoExecutionException, IOException {
+		initFolder();
 
-        thrown.expect(MojoExecutionException.class);
-        thrown.expectMessage("Database name is missing");
+		thrown.expect(MojoExecutionException.class);
+		thrown.expectMessage("Database name is missing");
 
-        new MongoScriptsMojo(rootFolder, PORT, null, null).execute();
-    }
+		new MongoScriptsMojo(rootFolder, PORT, null, null).execute();
+	}
 
-    @Test public void
-    should_fail_to_execute_instruction_with_error() throws IOException, MojoFailureException, MojoExecutionException {
-        DB database = mock(DB.class);
-        initFolderWithError();
+	@Test
+	public void should_fail_to_execute_instruction_with_error()
+			throws IOException, MojoFailureException, MojoExecutionException {
+		DB database = mock(DB.class);
+		initFolderWithError();
 
-        CommandResult result = new EmbedMongoDB("myDB").notOkErrorResult("Error while executing instructions from file '" + rootFolderWithError.listFiles()[0].getName());
-        given(database.doEval(anyString(), ArgumentMatchers.<Object>any())).willReturn(result);
+		CommandResult result = new EmbedMongoDB("myDB").notOkErrorResult(
+				"Error while executing instructions from file '" + rootFolderWithError.listFiles()[0].getName());
+		given(database.doEval(anyString(), ArgumentMatchers.<Object>any())).willReturn(result);
 
-        thrown.expect(MojoExecutionException.class);
-        thrown.expectMessage("Error while executing instructions from file '" + rootFolderWithError.listFiles()[0].getName());
+		thrown.expect(MojoExecutionException.class);
+		thrown.expectMessage(
+				"Error while executing instructions from file '" + rootFolderWithError.listFiles()[0].getName());
 
-        new MongoScriptsMojoForTest(rootFolderWithError, PORT, "myDB", database, null).execute();
-    }
+		new MongoScriptsMojoForTest(rootFolderWithError, PORT, "myDB", database, null).execute();
+	}
 
-    @Test public void
-    should_not_accept_invalid_charset_encoding() throws IOException, MojoFailureException, MojoExecutionException {
-        initFolder();
+	@Test
+	public void should_not_accept_invalid_charset_encoding()
+			throws IOException, MojoFailureException, MojoExecutionException {
+		initFolder();
 
-        String invalidScriptCharsetEncoding = "INVALID";
-        thrown.expect(MojoExecutionException.class);
-        thrown.expectMessage("Unable to determine charset encoding for provided charset '" + invalidScriptCharsetEncoding + "'");
+		String invalidScriptCharsetEncoding = "INVALID";
+		thrown.expect(MojoExecutionException.class);
+		thrown.expectMessage(
+				"Unable to determine charset encoding for provided charset '" + invalidScriptCharsetEncoding + "'");
 
-        new MongoScriptsMojoForTest(rootFolder, PORT, "myDB", invalidScriptCharsetEncoding).execute();
-    }
+		new MongoScriptsMojoForTest(rootFolder, PORT, "myDB", invalidScriptCharsetEncoding).execute();
+	}
 
-    private void initFolder() throws IOException {
-        File instructionsFile = createSchemaFolder.newFile();
-        BufferedWriter out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(instructionsFile));
-            out.write("db.dropDatabase();\n");
-            out.write("db.users.createIndex( { email: 1 }, { unique: true } );\n");
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-        }
-        rootFolder = instructionsFile.getParentFile();
-        rootFolder.mkdir();
-    }
+	private void initFolder() throws IOException {
+		File instructionsFile = createSchemaFolder.newFile();
+		BufferedWriter out = null;
+		try {
+			out = new BufferedWriter(new FileWriter(instructionsFile));
+			out.write("db.dropDatabase();\n");
+			out.write("db.users.createIndex( { email: 1 }, { unique: true } );\n");
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+		}
+		rootFolder = instructionsFile.getParentFile();
+		rootFolder.mkdir();
+	}
 
-    private void initFolderWithError() throws IOException {
-        File instructionsFile = createSchemaFolder.newFile();
-        BufferedWriter reader = null;
-        try {
-            reader = new BufferedWriter(new FileWriter(instructionsFile));
-            reader.write("db.unknownInstruction();\n");
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-        rootFolderWithError = instructionsFile.getParentFile();
-        rootFolderWithError.mkdir();
-    }
+	private void initFolderWithError() throws IOException {
+		File instructionsFile = createSchemaFolder.newFile();
+		BufferedWriter reader = null;
+		try {
+			reader = new BufferedWriter(new FileWriter(instructionsFile));
+			reader.write("db.unknownInstruction();\n");
+		} finally {
+			if (reader != null) {
+				reader.close();
+			}
+		}
+		rootFolderWithError = instructionsFile.getParentFile();
+		rootFolderWithError.mkdir();
+	}
 
-    static class MongoScriptsMojoForTest extends MongoScriptsMojo {
+	static class MongoScriptsMojoForTest extends MongoScriptsMojo {
 
-        private final DB database;
+		private final DB database;
 
-        public MongoScriptsMojoForTest(File dataFolder, int port, String databaseName, String scriptCharsetEncoding) throws UnknownHostException {
-            this(dataFolder, port, databaseName, new EmbedMongoDB("myDB"), scriptCharsetEncoding);
-        }
+		public MongoScriptsMojoForTest(File dataFolder, int port, String databaseName, String scriptCharsetEncoding)
+				throws UnknownHostException {
+			this(dataFolder, port, databaseName, new EmbedMongoDB("myDB"), scriptCharsetEncoding);
+		}
 
-        public MongoScriptsMojoForTest(File dataFolder, int port, String databaseName, DB database, String scriptCharsetEncoding) {
-            super(dataFolder, port, databaseName, scriptCharsetEncoding);
-            this.database = database;
-        }
+		public MongoScriptsMojoForTest(File dataFolder, int port, String databaseName, DB database,
+				String scriptCharsetEncoding) {
+			super(dataFolder, port, databaseName, scriptCharsetEncoding);
+			this.database = database;
+		}
 
-        @Override
-        DB connectToMongoAndGetDatabase() {
-            return database;
-        }
-    }
+		@Override
+		DB connectToMongoAndGetDatabase() {
+			return database;
+		}
+	}
 }

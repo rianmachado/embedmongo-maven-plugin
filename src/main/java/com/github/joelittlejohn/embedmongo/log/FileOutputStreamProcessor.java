@@ -20,51 +20,59 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import de.flapdoodle.embed.process.io.IStreamProcessor;
+import lombok.Builder;
 
+@Builder
 public class FileOutputStreamProcessor implements IStreamProcessor {
+	private static OutputStreamWriter stream;
 
-    private static OutputStreamWriter stream;
+	private String logFile;
+	private String encoding;
 
-    private String logFile;
-    private String encoding;
+	public FileOutputStreamProcessor(String logFile, String encoding) {
+		setLogFile(logFile);
+		setEncoding(encoding);
+	}
 
-    public FileOutputStreamProcessor(String logFile, String encoding) {
-        setLogFile(logFile);
-        setEncoding(encoding);
-    }
+	@Override
+	public synchronized void process(String block) {
+		try {
+			if (stream == null) {
+				stream = new OutputStreamWriter(new FileOutputStream(logFile), encoding);
+			}
+			stream.write(block);
+			stream.flush();
 
-    @Override
-    public synchronized void process(String block) {
-        try {
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-            if (stream == null) {
-                stream = new OutputStreamWriter(new FileOutputStream(logFile), encoding);
-            }
+	@Override
+	public void onProcessed() {
+		process("\n");
+	}
 
-            stream.write(block);
-            stream.flush();
+	private synchronized void setLogFile(String logFile) {
+		if (logFile == null || logFile.trim().isEmpty()) {
+			throw new IllegalArgumentException("no logFile given");
+		}
+		this.logFile = logFile;
+	}
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private synchronized void setEncoding(String encoding) {
+		if (encoding == null || encoding.trim().isEmpty()) {
+			throw new IllegalArgumentException("no encoding given");
+		}
+		this.encoding = encoding;
+	}
 
-    @Override
-    public void onProcessed() {
-        process("\n");
-    }
+	public static OutputStreamWriter getStream() {
+		return stream;
+	}
 
-    private synchronized void setLogFile(String logFile) {
-        if (logFile == null || logFile.trim().isEmpty()) {
-            throw new IllegalArgumentException("no logFile given");
-        }
-        this.logFile = logFile;
-    }
-
-    private synchronized void setEncoding(String encoding) {
-        if (encoding == null || encoding.trim().isEmpty()) {
-            throw new IllegalArgumentException("no encoding given");
-        }
-        this.encoding = encoding;
-    }
+	@Override
+	public String toString() {
+		return "FileOutputStreamProcessor [logFile=" + logFile + ", encoding=" + encoding + "]";
+	}
 }

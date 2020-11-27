@@ -145,4 +145,9 @@ public class MongoScriptsMojo extends AbstractEmbeddedMongoMojo {
 			return mongoClient.getDB(databaseName);
 		}
 	}
+
+	public void setScriptsDirectory(File scriptsDirectory) {
+		this.scriptsDirectory = scriptsDirectory;
+	}
+	
 }

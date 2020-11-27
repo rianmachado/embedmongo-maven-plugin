@@ -172,4 +172,18 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
         return project;
     }
 
+	public void setProject(MavenProject project) {
+		this.project = project;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+    
+    
+
 }

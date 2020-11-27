@@ -20,6 +20,9 @@ import static org.apache.commons.lang3.StringUtils.substringBeforeLast;
 
 import java.io.File;
 
+import lombok.Getter;
+
+@Getter
 public class ImportDataConfig {
     private String database;
     private String collection;
@@ -53,21 +56,6 @@ public class ImportDataConfig {
         }
     }
 
-    public String getFile() {
-        return file;
-    }
-
-    public Boolean getDropOnImport() {
-        return dropOnImport;
-    }
-
-    public Boolean getUpsertOnImport() {
-        return upsertOnImport;
-    }
-
-    public long getTimeout() {
-        return timeout;
-    }
 
     @Override
     public String toString() {
