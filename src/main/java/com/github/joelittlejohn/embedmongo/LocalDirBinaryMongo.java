@@ -15,7 +15,7 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import com.github.joelittlejohn.embedmongo.constants.ParamLocalDir;
+import com.github.joelittlejohn.embedmongo.properties.LoadConfiguration;
 
 /**
  * @author rianmachado@gmail.com
@@ -27,7 +27,7 @@ public class LocalDirBinaryMongo implements LocalDir {
 
 	@Override
 	public String buildPathInputDir() {
-		return ParamLocalDir.ROOT_DIR;
+		return LoadConfiguration.ROOT_DIR;
 	}
 
 	@Override

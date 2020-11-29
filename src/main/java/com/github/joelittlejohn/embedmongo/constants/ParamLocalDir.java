@@ -18,46 +18,21 @@ package com.github.joelittlejohn.embedmongo.constants;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.flapdoodle.embed.process.distribution.Platform;
-
 /**
  * @author rianmachado@gmail.com
  */
 public final class ParamLocalDir {
 
-	public static String MONGO_BINARI_WINDOWS_VERSION = "mongodb-win32-x86_64-2.7.1.zip";
-	public static String MONGO_BINARI_MACOS_VERSION = "mongodb-osx-x86_64-2.7.1.zip";
-	public static String MONGO_BINARI_LINUX_VERSION = "mongodb-osx-x86_64-2.7.1.zip";
+	public static String MONGO_BINARI_WINDOWS_VERSION = "mongo-binari-windows-version";
+	public static String MONGO_BINARI_MACOS_VERSION = "mongo-binari-macos-version";
+	public static String MONGO_BINARI_LINUX_VERSION = "mongo-binari-linux-version";
 
-	private static final String DIRECTORY_NAME_FOR_WINDOWS = "win32";
-	private static final String DIRECTORY_NAME_FOR_MACOS = "osx";
-	private static final String DIRECTORY_NAME_FOR_LINUX = "linux";
-
-	public static String ROOT_DIR = "mongo-repo";
+	public static final String DIRECTORY_NAME_FOR_WINDOWS = "directory-name-for-windows";
+	public static final String DIRECTORY_NAME_FOR_MACOS = "directory-name-for-macos";
+	public static final String DIRECTORY_NAME_FOR_LINUX = "directory-name-for-linux";
 
 	public static final Map<String, String> MAP_MONGO_BINARY = new HashMap<String, String>();
 	public static final Map<String, String> MAP_DIRECTORY_NAME = new HashMap<String, String>();
-
-	static {
-
-		MAP_MONGO_BINARY.put(Platform.Windows.name(), java.io.File.separator + DIRECTORY_NAME_FOR_WINDOWS
-				+ java.io.File.separator + MONGO_BINARI_WINDOWS_VERSION);
-
-		MAP_MONGO_BINARY.put(Platform.Linux.name(), java.io.File.separator + DIRECTORY_NAME_FOR_LINUX
-				+ java.io.File.separator + MONGO_BINARI_LINUX_VERSION);
-
-		MAP_MONGO_BINARY.put(Platform.OS_X.name(), java.io.File.separator + DIRECTORY_NAME_FOR_MACOS
-				+ java.io.File.separator + MONGO_BINARI_MACOS_VERSION);
-
-		MAP_DIRECTORY_NAME.put(Platform.Windows.name(), java.io.File.separator + DIRECTORY_NAME_FOR_WINDOWS
-				+ java.io.File.separator + MONGO_BINARI_WINDOWS_VERSION);
-
-		MAP_DIRECTORY_NAME.put(Platform.Linux.name(), java.io.File.separator + DIRECTORY_NAME_FOR_LINUX
-				+ java.io.File.separator + MONGO_BINARI_LINUX_VERSION);
-
-		MAP_DIRECTORY_NAME.put(Platform.OS_X.name(), java.io.File.separator + DIRECTORY_NAME_FOR_MACOS
-				+ java.io.File.separator + MONGO_BINARI_MACOS_VERSION);
-	}
 
 	private ParamLocalDir() {
 	}

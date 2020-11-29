@@ -15,14 +15,13 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -67,7 +66,8 @@ public class StartMojoTest {
 		startMojo.setDownloadPath("");
 		startMojo.setSettings(new Settings());
 		startMojo.setPort(27017);
-		startMojo.setVersion("2.2.1");
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
 		try {
 			startMojo.executeStart();
 		} catch (MojoExecutionException | MojoFailureException e) {
@@ -75,18 +75,6 @@ public class StartMojoTest {
 					.startsWith("Failed to download MongoDB distribution: GenericFeatureAwareVersion{2.2.1}"));
 		}
 
-	}
-
-	@Test
-	public void testExecuteImportMojoDataBaseNotStarted() {
-		MongoScriptsMojo mongoScriptsMojo = new MongoScriptsMojo();
-		File scriptsDirectory = java.nio.file.Paths.get(System.getProperty("user.home")).toFile();
-		mongoScriptsMojo.setScriptsDirectory(scriptsDirectory);
-		try {
-			mongoScriptsMojo.execute();
-		} catch (MojoExecutionException | MojoFailureException e) {
-			assertEquals("Database name is missing", e.getLocalizedMessage());
-		}
 	}
 
 }

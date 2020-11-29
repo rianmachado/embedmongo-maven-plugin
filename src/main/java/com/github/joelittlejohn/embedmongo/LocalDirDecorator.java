@@ -15,11 +15,14 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import com.github.joelittlejohn.embedmongo.properties.LoadConfiguration;
+
 public class LocalDirDecorator implements LocalDir {
 
 	private LocalDir wrappee;
 
 	LocalDirDecorator(LocalDir localDir) {
+		LoadConfiguration.builder().build();
 		this.wrappee = localDir;
 	}
 

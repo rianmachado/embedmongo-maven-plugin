@@ -128,4 +128,10 @@ public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
         Validate.isTrue(StringUtils.isNotBlank(defaultImportDatabase) || StringUtils.isNotBlank(config.getDatabase()), "Database is required you can either define a defaultImportDatabase or a <database> on import tags");
     }
 
+	public void setImports(ImportDataConfig[] imports) {
+		this.imports = imports;
+	}
+
+    
+    
 }

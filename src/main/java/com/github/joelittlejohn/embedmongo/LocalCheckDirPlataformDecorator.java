@@ -34,11 +34,11 @@ public class LocalCheckDirPlataformDecorator extends LocalDirDecorator {
 
 	private String checkPlatformOutputDirectory(String basePath) {
 		String dir = ParamLocalDir.MAP_DIRECTORY_NAME.get(Platform.detect().name());
-		File file = new File(dir);
+		File file = new File(basePath+dir).getParentFile().getAbsoluteFile();
 		if (!file.exists()) {
 			file.mkdir();
 		}
-		return dir;
+		return file.getAbsolutePath();
 
 	}
 

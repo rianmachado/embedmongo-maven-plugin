@@ -15,48 +15,35 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * @author rianmachado@gmail.com
- */
 @RunWith(MockitoJUnitRunner.class)
-public class FileCopyTest {
+public class MongoImportMojoTest {
 
-	private static String from;
-	private static String to;
+	private static String outDir;
 
 	@BeforeClass
 	public static void init() {
-		try {
-			Path out = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
-			Files.walk(out).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir();
 		LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
-		from = localDirDecorator.buildPathInputDir();
-		to = localDirDecorator.buildPathOutputDir();
+		outDir = localDirDecorator.buildPathOutputDir();
 	}
 
 	@AfterClass
 	public static void finish() {
 		try {
-			Path out = Paths.get(to);
+			Path out = Paths.get(outDir);
 			if (Files.exists(out)) {
 				Files.delete(out);
 			}
@@ -66,13 +53,22 @@ public class FileCopyTest {
 	}
 
 	@Test
-	public void testCopy() {
+	public void testExecuteImportMojoDataBaseNotStarted() {
+		MongoImportMojo mongoImportMojo = new MongoImportMojo();
+		ImportDataConfig config = new ImportDataConfig("demo", "collection-demo",
+				"C:\\Users\\rndd\\.embedmongo\\demo-test.json", false, false, 1000);
+		ImportDataConfig[] configs = new ImportDataConfig[1];
+		configs[0] = config;
+		mongoImportMojo.setVersion("2.7.1");
+		mongoImportMojo.setPort(27017);
+		mongoImportMojo.setProject(new MavenProject());
+		mongoImportMojo.setImports(configs);
 		try {
-			FileCopy.copy(from, to);
-		} catch (IOException e) {
+			mongoImportMojo.execute();
+		} catch (MojoExecutionException | MojoFailureException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		assertTrue(Files.exists(Paths.get(to)));
 	}
 
 }

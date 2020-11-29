@@ -31,7 +31,7 @@ public class FileCopy {
 		OutputStream outStream = null;
 		try {
 			File toFile = new File(to);
-			ClassLoader classLoader = StartMojo.class.getClassLoader();
+			ClassLoader classLoader = FileCopy.class.getClassLoader();
 			inStream = classLoader.getResourceAsStream(from);
 			outStream = new FileOutputStream(toFile);
 			byte[] buffer = new byte[1024];
