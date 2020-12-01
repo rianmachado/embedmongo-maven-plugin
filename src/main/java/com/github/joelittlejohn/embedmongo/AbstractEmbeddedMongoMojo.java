@@ -84,13 +84,6 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
     @Parameter( defaultValue = "${project}", readonly = true )
     protected MavenProject project;
 
-    public AbstractEmbeddedMongoMojo() {
-    }
-
-    AbstractEmbeddedMongoMojo(int port) {
-        this.port = port;
-    }
-
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         if(skip) {

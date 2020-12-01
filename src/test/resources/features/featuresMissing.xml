@@ -23,12 +23,6 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>mongo-scripts</id>
-                        <goals>
-                            <goal>mongo-scripts</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>mongo-import</id>
                         <goals>
                             <goal>mongo-import</goal>

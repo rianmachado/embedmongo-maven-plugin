@@ -159,7 +159,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		// TODDO: Rian Vasconcelos
 		try {
 			loadBinaryMongoFromResource();
-		} catch (IOException ioException) {
+		} catch (Exception ioException) {
 			throw new MojoExecutionException("Failed get MongoDB distribution from resources", ioException);
 		}
 
@@ -201,8 +201,8 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		try {
 			MongodProcess mongod = executable.start();
 
-//TODO: CUNSTOM RIAN
-//			if (isWait()) {
+			//TODO: CUNSTOM RIAN
+			//if (isWait()) {
 			while (isWait()) {
 				try {
 					TimeUnit.MINUTES.sleep(5);
@@ -210,7 +210,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 					Thread.currentThread().interrupt();
 				}
 			}
-//			}
+			//}
 
 			getPluginContext().put(MONGOD_CONTEXT_PROPERTY_NAME, mongod);
 		} catch (IOException e) {
@@ -283,7 +283,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		}
 	}
 
-	private void loadBinaryMongoFromResource() throws IOException {
+	public void loadBinaryMongoFromResource() throws Exception {
 		File dirOut = new File(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
 		if (dirOut.listFiles().length == 0) {
 			LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
@@ -300,6 +300,11 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	public void setSettings(Settings settings) {
 		this.settings = settings;
 	}
+
+	public void setLogging(String logging) {
+		this.logging = logging;
+	}
+	
 	
 	
 	

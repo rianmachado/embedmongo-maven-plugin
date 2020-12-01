@@ -15,12 +15,15 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -33,46 +36,104 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.github.joelittlejohn.embedmongo.log.Loggers;
+
 /**
  * @author rianmachado@gmail.com
  */
 @RunWith(MockitoJUnitRunner.class)
 public class StartMojoTest {
 
-	private static String outDir;
+	private static String from;
+	private static String to;
+	private static Path outDirOs;
 
 	@BeforeClass
 	public static void init() {
-		LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
-		outDir = localDirDecorator.buildPathOutputDir();
+		try {
+			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
+			Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir();
+			LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
+			from = localDirDecorator.buildPathInputDir();
+			to = localDirDecorator.buildPathOutputDir();
+			FileCopy.copy(from, to);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@AfterClass
 	public static void finish() {
 		try {
-			Path out = Paths.get(outDir);
+			Path out = Paths.get(to);
 			if (Files.exists(out)) {
 				Files.delete(out);
 			}
+			Files.delete(outDirOs);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Test
-	public void testExecuteStart() {
+	public void testExecuteStartStop() {
+
+		int port = 0;
+		try {
+			port = NetworkUtils.allocateRandomPort();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 		StartMojo startMojo = new StartMojo();
 		startMojo.setProject(new MavenProject());
 		startMojo.setDownloadPath("");
 		startMojo.setSettings(new Settings());
-		startMojo.setPort(27017);
+		startMojo.setPort(port);
 		startMojo.setVersion("2.7.1");
 		startMojo.setPluginContext(new HashMap<>());
+		startMojo.setLogging(Loggers.LoggingStyle.CONSOLE.name());
+		startMojo.onSkip();
+
+		StopMojo stopMojo = new StopMojo();
+		stopMojo.setProject(new MavenProject());
+		stopMojo.setPort(27017);
+		stopMojo.setVersion("2.7.1");
+		stopMojo.setPluginContext(startMojo.getPluginContext());
 		try {
 			startMojo.executeStart();
+			stopMojo.execute();
+			assertTrue("Successfully started",
+					startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME) != null);
 		} catch (MojoExecutionException | MojoFailureException e) {
-			assertTrue(e.getLocalizedMessage()
-					.startsWith("Failed to download MongoDB distribution: GenericFeatureAwareVersion{2.2.1}"));
+			e.printStackTrace();
+		}
+
+	}
+
+	@Test
+	public void testExecuteStartStopErro() {
+		StartMojo startMojo = new StartMojo();
+		startMojo.setPluginContext(new HashMap<>());
+		startMojo.setLogging(Loggers.LoggingStyle.FILE.name());
+
+		StopMojo stopMojo = new StopMojo();
+		stopMojo.setProject(new MavenProject());
+		stopMojo.setPort(27017);
+		stopMojo.setVersion("2.7.1");
+		HashMap<String, String> map = new HashMap<>();
+		map.put(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME, "");
+		stopMojo.setPluginContext(startMojo.getPluginContext());
+		startMojo.onSkip();
+		try {
+			stopMojo.execute();
+		} catch (MojoExecutionException | MojoFailureException e) {
+			assertNull(	startMojo.getFeatures());
+			assertNull(startMojo.getProject());
+			assertTrue("No mongod process found, it appears embedmongo:start was not called"
+					.equalsIgnoreCase(e.getLocalizedMessage()));
 		}
 
 	}

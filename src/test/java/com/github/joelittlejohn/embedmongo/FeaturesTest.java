@@ -33,7 +33,7 @@ public class FeaturesTest {
     @Rule
     public MojoRule rule = new MojoRule();
 
-    private List<String> GOAL_LIST = Arrays.asList("start", "mongo-scripts", "mongo-import", "stop");
+    private List<String> GOAL_LIST = Arrays.asList("start", "mongo-import", "stop");
 
     @Test
     public void testFeaturesMissing() throws Exception {

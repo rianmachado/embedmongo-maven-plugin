@@ -30,27 +30,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import com.github.joelittlejohn.embedmongo.constants.ParamLocalDir;
+
 /**
  * @author rianmachado@gmail.com
  */
 @RunWith(MockitoJUnitRunner.class)
-public class FileCopyTest {
+public class FileCopyBinaryTest {
 
-	private static String from;
 	private static String to;
+	private static Path outDirOs;
 
 	@BeforeClass
 	public static void init() {
 		try {
-			Path out = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
-			Files.walk(out).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
+			Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir();
-		LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
-		from = localDirDecorator.buildPathInputDir();
-		to = localDirDecorator.buildPathOutputDir();
+		to = new LocalDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir();
 	}
 
 	@AfterClass
@@ -60,19 +59,34 @@ public class FileCopyTest {
 			if (Files.exists(out)) {
 				Files.delete(out);
 			}
+			if (Files.exists(outDirOs)) {
+				Files.delete(outDirOs);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Test
-	public void testCopy() {
+	public void testCopyBinaryFromResource() {
 		try {
-			FileCopy.copy(from, to);
-		} catch (IOException e) {
+			StartMojo startMojo = new StartMojo();
+			startMojo.loadBinaryMongoFromResource();
+			assertTrue(Files.exists(Paths.get(to)));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertTrue(Files.exists(Paths.get(to)));
+	}
+
+	@Test
+	public void testCopyBinaryFromResourceErro() {
+		try {
+			StartMojo startMojo = new StartMojo();
+			ParamLocalDir.MAP_MONGO_BINARY.clear();
+			startMojo.loadBinaryMongoFromResource();
+		} catch (Exception e) {
+			assertTrue(e.getLocalizedMessage().startsWith("Cannot invoke"));
+		}
 	}
 
 }

@@ -23,25 +23,17 @@ import de.flapdoodle.embed.process.runtime.Network;
 
 public final class NetworkUtils {
 
-    private NetworkUtils() {
-    }
+	private NetworkUtils() {
+	}
 
-    public static int allocateRandomPort() {
-        try {
-            ServerSocket server = new ServerSocket(0);
-            int port = server.getLocalPort();
-            server.close();
-            return port;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to acquire a random free port", e);
-        }
-    }
+	public static int allocateRandomPort() throws IOException {
+		ServerSocket server = new ServerSocket(0);
+		int port = server.getLocalPort();
+		server.close();
+		return port;
+	}
 
-    public static boolean localhostIsIPv6() {
-        try {
-            return Network.localhostIsIPv6();
-        } catch (UnknownHostException e) {
-            return false;
-        }
-    }
+	public static boolean localhostIsIPv6() throws UnknownHostException {
+		return Network.localhostIsIPv6();
+	}
 }

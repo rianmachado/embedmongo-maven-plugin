@@ -20,9 +20,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import de.flapdoodle.embed.process.io.IStreamProcessor;
-import lombok.Builder;
 
-@Builder
 public class FileOutputStreamProcessor implements IStreamProcessor {
 	private static OutputStreamWriter stream;
 
@@ -42,7 +40,6 @@ public class FileOutputStreamProcessor implements IStreamProcessor {
 			}
 			stream.write(block);
 			stream.flush();
-
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

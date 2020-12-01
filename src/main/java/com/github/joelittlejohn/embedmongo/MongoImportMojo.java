@@ -45,6 +45,8 @@ public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
 
     @Parameter(property = "embedmongo.parallel", defaultValue = "false")
     private Boolean parallel;
+    
+    private MongoImportProcess importProcess;
 
     @Override
     public void executeStart() throws MojoExecutionException, MojoFailureException {
@@ -92,7 +94,7 @@ public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
 
             MongoImportExecutable mongoImport = MongoImportStarter.getDefaultInstance().prepare(mongoImportConfig);
 
-            MongoImportProcess importProcess = mongoImport.start();
+            importProcess = mongoImport.start();
 
             if(parallel){
                 pendingMongoProcess.add(importProcess);
@@ -131,6 +133,16 @@ public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
 	public void setImports(ImportDataConfig[] imports) {
 		this.imports = imports;
 	}
+
+	public void setParallel(Boolean parallel) {
+		this.parallel = parallel;
+	}
+
+	public MongoImportProcess getImportProcess() {
+		return importProcess;
+	}
+	
+	
 
     
     

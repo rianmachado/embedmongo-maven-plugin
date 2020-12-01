@@ -15,14 +15,20 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import com.github.joelittlejohn.embedmongo.properties.LoadConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.joelittlejohn.embedmongo.configuration.LoadConfiguration;
 
 public class LocalDirDecorator implements LocalDir {
+	
+	private static Logger logger = LoggerFactory.getLogger(LocalDirDecorator.class);
 
 	private LocalDir wrappee;
 
 	LocalDirDecorator(LocalDir localDir) {
-		LoadConfiguration.builder().build();
+		LoadConfiguration config = LoadConfiguration.builder().build();
+		logger.info(config.toString());
 		this.wrappee = localDir;
 	}
 

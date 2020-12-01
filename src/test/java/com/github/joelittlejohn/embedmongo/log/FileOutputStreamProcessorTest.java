@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -66,9 +67,8 @@ public class FileOutputStreamProcessorTest {
 		FileInputStream inputStream = null;
 		StringBuilder resultStringBuilder = new StringBuilder();
 		try {
-			FileOutputStreamProcessor fileOutputStreamProcessor = FileOutputStreamProcessor.builder()
-					.logFile(logFile.toString()).encoding(encoding).build();
-
+			FileOutputStreamProcessor fileOutputStreamProcessor = new FileOutputStreamProcessor(logFile.toString(),
+					encoding);
 			fileOutputStreamProcessor.process(TEXT);
 			inputStream = new FileInputStream(logFile.toFile());
 			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
@@ -97,7 +97,7 @@ public class FileOutputStreamProcessorTest {
 	@Test
 	public void testProcessErro() {
 		try {
-			FileOutputStreamProcessor.builder().logFile(".?%4233.").encoding(encoding).build().process("log");
+			new FileOutputStreamProcessor(".?%4233.", encoding).process("log");
 		} catch (Exception e) {
 			assertTrue("RuntimeException esperdo ", e instanceof RuntimeException);
 		}
@@ -106,9 +106,8 @@ public class FileOutputStreamProcessorTest {
 	@Test
 	public void testProcessLogFileNullErro() {
 		try {
-			FileOutputStreamProcessor.builder().logFile(null).encoding(encoding).build().process("log");
+			new FileOutputStreamProcessor(null, encoding).process("log");
 		} catch (Exception e) {
-
 			assertTrue("IllegalArgumentException esperdo ", e instanceof IllegalArgumentException);
 		}
 	}
@@ -116,14 +115,13 @@ public class FileOutputStreamProcessorTest {
 	@Test
 	public void testProcessLogFileAndEncoding() {
 		String outPutTest = "FileOutputStreamProcessor [logFile=" + logFile.toString() + ", encoding=" + encoding + "]";
-		assertEquals(outPutTest,
-				FileOutputStreamProcessor.builder().logFile(logFile.toString()).encoding(encoding).build().toString());
+		assertEquals(outPutTest, new FileOutputStreamProcessor(logFile.toString(), encoding).toString());
 	}
 
 	@Test
 	public void testProcessEcodinNullErro() {
 		try {
-			FileOutputStreamProcessor.builder().logFile(logFile.toString()).encoding(null).build().process("log");
+			new FileOutputStreamProcessor(logFile.toString(), null).process("log");
 		} catch (Exception e) {
 
 			assertTrue("IllegalArgumentException esperdo ", e instanceof IllegalArgumentException);
@@ -132,9 +130,19 @@ public class FileOutputStreamProcessorTest {
 
 	@Test
 	public void testOnProcessed() {
-		FileOutputStreamProcessor fileOutputStreamProcessor = FileOutputStreamProcessor.builder()
-				.logFile(logFile.toString()).encoding(encoding).build();
+		FileOutputStreamProcessor fileOutputStreamProcessor = new FileOutputStreamProcessor(logFile.toString(),
+				encoding);
 		fileOutputStreamProcessor.onProcessed();
 		assertNotNull(FileOutputStreamProcessor.getStream());
 	}
+
+	@Test
+	public void testProcessIOException() {
+		try {
+			new FileOutputStreamProcessor("https://localhost.demo.test", encoding).process("log");
+		} catch (Exception e) {
+			assertTrue(e instanceof RuntimeException);
+		}
+	}
+
 }

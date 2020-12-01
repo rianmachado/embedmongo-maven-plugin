@@ -15,14 +15,23 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.HashMap;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -32,41 +41,180 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class MongoImportMojoTest {
 
-	private static String outDir;
+	private static String from;
+	private static String to;
+	private static Path outDirOs;
+	private static String pathMockJsonFile;
 
 	@BeforeClass
 	public static void init() {
-		LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
-		outDir = localDirDecorator.buildPathOutputDir();
+		try {
+			pathMockJsonFile = MongoImportMojoTest.class.getClassLoader().getResource("demo-test.json").getPath();
+			String osName = System.getProperty("os.name");
+			if (osName.startsWith("Windows", 0)) {
+				pathMockJsonFile = pathMockJsonFile.substring(1);
+			}
+
+			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
+			Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir();
+			LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
+			from = localDirDecorator.buildPathInputDir();
+			to = localDirDecorator.buildPathOutputDir();
+			FileCopy.copy(from, to);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@AfterClass
 	public static void finish() {
 		try {
-			Path out = Paths.get(outDir);
+			Path out = Paths.get(to);
 			if (Files.exists(out)) {
 				Files.delete(out);
 			}
+			Files.delete(outDirOs);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Test
-	public void testExecuteImportMojoDataBaseNotStarted() {
+	public void testExecuteImportMojoDataBase() {
+
+		StartMojo startMojo = new StartMojo();
+		startMojo.setProject(new MavenProject());
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setPort(27017);
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+
 		MongoImportMojo mongoImportMojo = new MongoImportMojo();
-		ImportDataConfig config = new ImportDataConfig("demo", "collection-demo",
-				"C:\\Users\\rndd\\.embedmongo\\demo-test.json", false, false, 1000);
+		ImportDataConfig config = new ImportDataConfig("demo", "collection-demo", pathMockJsonFile, false, false, 1000);
 		ImportDataConfig[] configs = new ImportDataConfig[1];
 		configs[0] = config;
 		mongoImportMojo.setVersion("2.7.1");
 		mongoImportMojo.setPort(27017);
 		mongoImportMojo.setProject(new MavenProject());
 		mongoImportMojo.setImports(configs);
+		mongoImportMojo.setParallel(false);
+
+		StopMojo stopMojo = new StopMojo();
+		stopMojo.setProject(new MavenProject());
+		stopMojo.setPort(27017);
+		stopMojo.setVersion("2.7.1");
+		stopMojo.setPluginContext(startMojo.getPluginContext());
+
+		try {
+			startMojo.executeStart();
+			mongoImportMojo.execute();
+			stopMojo.execute();
+			assertNotNull(mongoImportMojo.getLog());
+		} catch (MojoExecutionException | MojoFailureException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testExecuteImportMojoDataBaseNotStarted() {
+
+		int port = 0;
+		try {
+			port = NetworkUtils.allocateRandomPort();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		StartMojo startMojo = new StartMojo();
+		startMojo.setProject(new MavenProject());
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setPort(port);
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+
+		MongoImportMojo mongoImportMojo = new MongoImportMojo();
+		ImportDataConfig config = new ImportDataConfig("demo", "", pathMockJsonFile, false, false, 800);
+		ImportDataConfig[] configs = new ImportDataConfig[1];
+		configs[0] = config;
+		mongoImportMojo.setVersion("2.7.1");
+		mongoImportMojo.setPort(27017);
+		mongoImportMojo.setProject(new MavenProject());
+		mongoImportMojo.setImports(configs);
+		mongoImportMojo.setParallel(true);
 		try {
 			mongoImportMojo.execute();
 		} catch (MojoExecutionException | MojoFailureException e) {
-			// TODO Auto-generated catch block
+			String erro = e.getLocalizedMessage().substring(0,15);
+			assertEquals("Could not start",erro);
+		}
+	}
+
+	@Test
+	public void testExecuteImportMojoDataBaseRequired() {
+
+		int port = 0;
+		try {
+			port = NetworkUtils.allocateRandomPort();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		StartMojo startMojo = new StartMojo();
+		startMojo.setProject(new MavenProject());
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setPort(port);
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+
+		MongoImportMojo mongoImportMojo = new MongoImportMojo();
+		ImportDataConfig config = new ImportDataConfig("", "", pathMockJsonFile, false, false, 800);
+		ImportDataConfig[] configs = new ImportDataConfig[1];
+		configs[0] = config;
+		mongoImportMojo.setVersion("2.7.1");
+		mongoImportMojo.setPort(27017);
+		mongoImportMojo.setProject(new MavenProject());
+		mongoImportMojo.setImports(configs);
+		mongoImportMojo.setParallel(true);
+		try {
+			mongoImportMojo.execute();
+		} catch (MojoExecutionException | MojoFailureException e) {
+			assertTrue(e.getLocalizedMessage().startsWith("Database is required"));
+		}
+	}
+
+
+	@Test
+	public void testExecuteImportMojoDataBaseNotStartedConfigEmpty() {
+
+		int port = 0;
+		try {
+			port = NetworkUtils.allocateRandomPort();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		
+		StartMojo startMojo = new StartMojo();
+		startMojo.setProject(new MavenProject());
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setPort(port);
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+
+		MongoImportMojo mongoImportMojo = new MongoImportMojo();
+		mongoImportMojo.setVersion("2.7.1");
+		mongoImportMojo.setPort(27017);
+		mongoImportMojo.setProject(new MavenProject());
+		mongoImportMojo.setParallel(true);
+		try {
+			mongoImportMojo.execute();
+			assertNull(mongoImportMojo.getImportProcess());
+		} catch (MojoExecutionException | MojoFailureException e) {
 			e.printStackTrace();
 		}
 	}

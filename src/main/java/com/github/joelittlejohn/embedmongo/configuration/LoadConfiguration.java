@@ -1,4 +1,19 @@
-package com.github.joelittlejohn.embedmongo.properties;
+/**
+ * Copyright © 2012 Joe Littlejohn
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.joelittlejohn.embedmongo.configuration;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -24,8 +39,8 @@ public final class LoadConfiguration {
 		Map<String, Object> objPropertie = yaml.load(inputStream);
 
 		ROOT_DIR = objPropertie.get("root-dir").toString();
-		
-		ParamLocalDir.MAP_MONGO_BINARY.put(Platform.Windows.name(), 
+
+		ParamLocalDir.MAP_MONGO_BINARY.put(Platform.Windows.name(),
 				objPropertie.get(ParamLocalDir.DIRECTORY_NAME_FOR_WINDOWS) + "/"
 						+ objPropertie.get(ParamLocalDir.MONGO_BINARI_WINDOWS_VERSION));
 
@@ -49,7 +64,12 @@ public final class LoadConfiguration {
 				java.io.File.separator + objPropertie.get(ParamLocalDir.DIRECTORY_NAME_FOR_MACOS)
 						+ java.io.File.separator + objPropertie.get(ParamLocalDir.MONGO_BINARI_MACOS_VERSION));
 
+	}
 
+	@Override
+	public String toString() {
+		return ParamLocalDir.MAP_MONGO_BINARY.values().toString()
+				+ ParamLocalDir.MAP_DIRECTORY_NAME.values().toString();
 	}
 
 }

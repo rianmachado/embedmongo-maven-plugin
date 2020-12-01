@@ -15,7 +15,7 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import com.github.joelittlejohn.embedmongo.properties.LoadConfiguration;
+import com.github.joelittlejohn.embedmongo.configuration.LoadConfiguration;
 
 /**
  * @author rianmachado@gmail.com

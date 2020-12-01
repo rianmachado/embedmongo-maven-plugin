@@ -31,7 +31,7 @@ public class LocalDirPlataformDecorator extends LocalDirDecorator {
 	@Override
 	public String buildPathInputDir() {
 		String platformDir = plataformResolvInputPath();
-		return super.buildPathInputDir().concat(platformDir);
+		return super.buildPathInputDir().concat(platformDir==null?"":platformDir);
 	}
 
 	@Override

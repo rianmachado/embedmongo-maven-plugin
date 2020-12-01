@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.github.joelittlejohn.embedmongo.properties.LoadConfiguration;
+import com.github.joelittlejohn.embedmongo.configuration.LoadConfiguration;
 
 /**
  * @author rianmachado@gmail.com

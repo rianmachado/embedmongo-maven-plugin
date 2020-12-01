@@ -1,6 +1,6 @@
-mongo-binari-windows-version: mongodb-win32-x86-64-2.7.1.zip
-mongo-binari-macos-version: mongodb-osx-x86-64-2.7.1.zip
-mongo-binari-linux-version: mongodb-osx-x86-64-2.7.1.zip 
+mongo-binari-windows-version: mongodb-win32-x86_64-2.7.1.zip
+mongo-binari-macos-version: mongodb-osx-x86_64-2.7.1.tgz
+mongo-binari-linux-version: mongodb-linux-x86_64-2.7.1.tgz
 directory-name-for-windows: win32
 directory-name-for-macos: osx
 directory-name-for-linux: linux

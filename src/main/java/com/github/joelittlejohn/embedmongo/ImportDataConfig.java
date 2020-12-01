@@ -31,9 +31,6 @@ public class ImportDataConfig {
     private Boolean upsertOnImport = true;
     private long timeout = 200000;
 
-    public ImportDataConfig() {
-    }
-
     public ImportDataConfig(String database, String collection, String file, Boolean dropOnImport, Boolean upsertOnImport, long timeout) {
         this.database = database;
         this.collection = collection;
