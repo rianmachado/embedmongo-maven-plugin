@@ -17,6 +17,7 @@ package com.github.joelittlejohn.embedmongo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,115 +36,107 @@ import de.flapdoodle.embed.mongo.config.MongoImportConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.config.Timeout;
 
-@Mojo(name="mongo-import", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
+@Mojo(name = "mongo-import", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
 public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
-    @Parameter
-    private ImportDataConfig[] imports;
+	@Parameter
+	private ImportDataConfig[] imports;
 
-    @Parameter(property = "embedmongo.defaultImportDatabase")
-    private String defaultImportDatabase;
+	@Parameter(property = "embedmongo.defaultImportDatabase")
+	private String defaultImportDatabase;
 
-    @Parameter(property = "embedmongo.parallel", defaultValue = "false")
-    private Boolean parallel;
-    
-    private MongoImportProcess importProcess;
+	@Parameter(property = "embedmongo.parallel", defaultValue = "false")
+	private boolean parallel;
 
-    @Override
-    public void executeStart() throws MojoExecutionException, MojoFailureException {
-        try {
-            sendImportScript();
-        } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
+	private MongoImportProcess mongoImportProcess;
 
-    }
+	@Override
+	public void executeStart() throws MojoExecutionException, MojoFailureException {
+		try {
+			sendImportScript();
+		} catch (Exception e) {
+			throw new MojoExecutionException(e.getMessage(), e);
+		}
 
-    private void sendImportScript() throws IOException, InterruptedException, MojoExecutionException {
-        List<MongoImportProcess> pendingMongoProcess = new ArrayList<MongoImportProcess>();
+	}
 
-        if(imports == null || imports.length == 0) {
-            getLog().error("No imports found, check your configuration");
+	private void sendImportScript() throws IOException, InterruptedException, MojoExecutionException {
+		List<MongoImportProcess> pendingMongoProcess = new ArrayList<>();
 
-            return;
-        }
+		if (imports == null || imports.length == 0) {
+			getLog().error("No imports found, check your configuration");
 
-        getLog().info("Default import database: " + defaultImportDatabase);
+			return;
+		}
 
-        for(ImportDataConfig importData: imports) {
+		getLog().info("Default import database: " + defaultImportDatabase);
 
-            getLog().info("Import " + importData);
+		IMongoImportConfig mongoImportConfig;
 
-            verify(importData);
-            String database = importData.getDatabase();
+		boolean networkUtils = NetworkUtils.localhostIsIPv6();
 
-            if(StringUtils.isBlank(database)) {
-                database = defaultImportDatabase;
-            }
+		for (ImportDataConfig importData : imports) {
 
-            IMongoImportConfig mongoImportConfig = new MongoImportConfigBuilder()
-                    .version(getVersion())
-                    .net(new Net(getPort(), NetworkUtils.localhostIsIPv6()))
-                    .db(database)
-                    .collection(importData.getCollection())
-                    .upsert(importData.getUpsertOnImport())
-                    .dropCollection(importData.getDropOnImport())
-                    .importFile(importData.getFile())
-                    .jsonArray(true)
-                    .timeout(new Timeout(importData.getTimeout()))
-                    .build();
+			getLog().info("Import " + importData);
 
-            MongoImportExecutable mongoImport = MongoImportStarter.getDefaultInstance().prepare(mongoImportConfig);
+			verify(importData);
+			String database = importData.getDatabase();
 
-            importProcess = mongoImport.start();
+			if (StringUtils.isBlank(database)) {
+				database = defaultImportDatabase;
+			}
 
-            if(parallel){
-                pendingMongoProcess.add(importProcess);
-            }else{
-                waitFor(importProcess);
-            }
+			mongoImportConfig = new MongoImportConfigBuilder().version(getVersion())
+					.net(new Net(getPort(), networkUtils)).db(database).collection(importData.getCollection())
+					.upsert(importData.getUpsertOnImport()).dropCollection(importData.getDropOnImport())
+					.importFile(importData.getFile()).jsonArray(true).timeout(new Timeout(importData.getTimeout()))
+					.build();
 
-        }
+			MongoImportExecutable mongoImport = MongoImportStarter.getDefaultInstance().prepare(mongoImportConfig);
 
-        for(MongoImportProcess importProcess: pendingMongoProcess){
-            waitFor(importProcess);
-        }
+			mongoImportProcess = mongoImport.start();
 
-    }
+			if (parallel) {
+				pendingMongoProcess.add(mongoImportProcess);
+			} else {
+				waitFor(mongoImportProcess);
+			}
 
-    private void waitFor(MongoImportProcess importProcess) throws InterruptedException, MojoExecutionException {
-        int code = importProcess.waitFor();
+		}
 
-        if(code != 0){
-            throw new MojoExecutionException("Cannot import '" + importProcess.getConfig().getImportFile() + "'");
-        }
+		for (MongoImportProcess importProcess : pendingMongoProcess) {
+			waitFor(importProcess);
+		}
 
-        getLog().info("Import return code: " + code);
+	}
 
-    }
+	private void waitFor(MongoImportProcess importProcess) throws InterruptedException, MojoExecutionException {
+		int code = importProcess.waitFor();
 
-    private void verify(ImportDataConfig config) {
-        Validate.notBlank(config.getFile(), "Import file is required\n\n" +
-                "<imports>\n" +
-                "\t<import>\n" +
-                "\t\t<file>[my file]</file>\n" +
-                "...");
-        Validate.isTrue(StringUtils.isNotBlank(defaultImportDatabase) || StringUtils.isNotBlank(config.getDatabase()), "Database is required you can either define a defaultImportDatabase or a <database> on import tags");
-    }
+		if (code != 0) {
+			throw new MojoExecutionException("Cannot import '" + importProcess.getConfig().getImportFile() + "'");
+		}
+
+		getLog().info("Import return code: " + code);
+
+	}
+
+	private void verify(ImportDataConfig config) {
+		Validate.notBlank(config.getFile(), "Import file is required\n\n" + "<imports>\n" + "\t<import>\n"
+				+ "\t\t<file>[my file]</file>\n" + "...");
+		Validate.isTrue(StringUtils.isNotBlank(defaultImportDatabase) || StringUtils.isNotBlank(config.getDatabase()),
+				"Database is required you can either define a defaultImportDatabase or a <database> on import tags");
+	}
 
 	public void setImports(ImportDataConfig[] imports) {
-		this.imports = imports;
+		this.imports = imports != null ? Arrays.copyOf(imports, imports.length) : null;
 	}
 
 	public void setParallel(Boolean parallel) {
 		this.parallel = parallel;
 	}
 
-	public MongoImportProcess getImportProcess() {
-		return importProcess;
+	public MongoImportProcess getMongoImportProcess() {
+		return mongoImportProcess;
 	}
-	
-	
 
-    
-    
 }

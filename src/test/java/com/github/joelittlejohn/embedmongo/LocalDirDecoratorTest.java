@@ -17,6 +17,8 @@ package com.github.joelittlejohn.embedmongo;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,13 +38,13 @@ public class LocalDirDecoratorTest {
 	}
 
 	@Test
-	public void testBuildPathInputDir() {
+	public void testBuildPathInputDir() throws IOException {
 		LocalDirDecorator wrappee = new LocalDirDecorator(LocalDirBinaryMongo);
 		assertNotNull(wrappee.buildPathInputDir());
 	}
 
 	@Test
-	public void testeBuildPathOutputDir() {
+	public void testeBuildPathOutputDir() throws IOException {
 		LocalDirDecorator wrappee = new LocalDirDecorator(LocalDirBinaryMongo);
 		assertNotNull(wrappee.buildPathOutputDir());
 	}

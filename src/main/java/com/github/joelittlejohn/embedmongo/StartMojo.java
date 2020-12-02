@@ -62,11 +62,6 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	private static final String PACKAGE_NAME = StartMojo.class.getPackage().getName();
 	public static final String MONGOD_CONTEXT_PROPERTY_NAME = PACKAGE_NAME + ".mongod";
 
-	@Override
-	protected void savePortToProjectProperties(int port) {
-		super.savePortToProjectProperties(port);
-	}
-
 	/**
 	 * The location of a directory that will hold the MongoDB data files.
 	 * 
@@ -150,7 +145,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		// TODDO: Rian Vasconcelos
 		try {
 			loadBinaryMongoFromResource();
-		} catch (Exception ioException) {
+		} catch (IOException ioException) {
 			throw new MojoExecutionException("Failed get MongoDB distribution from resources", ioException);
 		}
 
@@ -190,16 +185,6 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 
 		try {
 			MongodProcess mongod = executable.start();
-
-			// TODO: CUNSTOM RIAN
-//			while (isWait()) {
-//				try {
-//					TimeUnit.MINUTES.sleep(5);
-//				} catch (InterruptedException e) {
-//					Thread.currentThread().interrupt();
-//				}
-//			}
-
 			getPluginContext().put(MONGOD_CONTEXT_PROPERTY_NAME, mongod);
 		} catch (IOException e) {
 			throw new MojoExecutionException("Unable to start the mongod", e);
@@ -207,7 +192,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	}
 
 	private List<String> createMongodArgsList() {
-		List<String> mongodArgs = new ArrayList<String>();
+		List<String> mongodArgs = new ArrayList<>();
 
 		if (System.getProperty("os.name").toLowerCase().indexOf("win") == -1 && this.unixSocketPrefix != null
 				&& !this.unixSocketPrefix.isEmpty()) {
@@ -250,9 +235,9 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		}
 	}
 
-	public void loadBinaryMongoFromResource() throws Exception {
+	public void loadBinaryMongoFromResource() throws IOException {
 		File dirOut = new File(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
-		if (dirOut.listFiles().length == 0) {
+		if (dirOut != null && dirOut.listFiles() != null && dirOut.listFiles().length == 0) {
 			LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
 			String in = localDirDecorator.buildPathInputDir();
 			String out = localDirDecorator.buildPathOutputDir();

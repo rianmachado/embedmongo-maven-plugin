@@ -15,6 +15,8 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,19 +28,19 @@ public class LocalDirDecorator implements LocalDir {
 
 	private LocalDir wrappee;
 
-	LocalDirDecorator(LocalDir localDir) {
+	LocalDirDecorator(LocalDir localDir) throws IOException {
 		ConfigurationDirectoryMongoBinary config = ConfigurationDirectoryMongoBinary.getInstance();
 		logger.info(config.toString());
 		this.wrappee = localDir;
 	}
 
 	@Override
-	public String buildPathInputDir() {
+	public String buildPathInputDir() throws IOException {
 		return wrappee.buildPathInputDir();
 	}
 
 	@Override
-	public String buildPathOutputDir() {
+	public String buildPathOutputDir() throws IOException {
 		return wrappee.buildPathOutputDir();
 	}
 

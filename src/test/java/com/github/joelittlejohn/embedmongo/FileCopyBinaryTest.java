@@ -42,7 +42,7 @@ public class FileCopyBinaryTest {
 	private static Path outDirOs;
 
 	@BeforeClass
-	public static void init() {
+	public static void init() throws IOException {
 		try {
 
 			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
@@ -109,7 +109,7 @@ public class FileCopyBinaryTest {
 
 			StartMojo startMojo = new StartMojo();
 
-			ConfigurationDirectoryMongoBinary.getInstance().getMAP_MONGO_BINARY().clear();
+			ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().clear();
 
 			startMojo.loadBinaryMongoFromResource();
 

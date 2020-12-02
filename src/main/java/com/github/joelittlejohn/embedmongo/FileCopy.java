@@ -15,27 +15,28 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @author rianmachado@gmail.com
  */
-public class FileCopy {
+public final class FileCopy {
+	
+	private FileCopy(){
+	}
 
 	public static void copy(String from, String to) throws IOException {
 		InputStream inStream = null;
-		File toFile = new File(to);
 		if (from == null) {
-			throw new RuntimeException("Mongo binary not found");
+			throw new IOException("Mongo binary not found");
 		}
 		ClassLoader classLoader = FileCopy.class.getClassLoader();
 		inStream = classLoader.getResourceAsStream(from);
-
-		try (OutputStream outStream = new FileOutputStream(toFile)) {
+		try (OutputStream outStream = Files.newOutputStream(Paths.get(to))) {
 			byte[] buffer = new byte[1024];
 			int length;
 			while ((length = inStream.read(buffer)) > 0) {
@@ -45,6 +46,5 @@ public class FileCopy {
 		}
 
 	}
-
 
 }

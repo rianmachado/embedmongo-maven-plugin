@@ -7,11 +7,11 @@ echo '**************************************************************'
 
 mvn verify -P cobertura
 #mvn checkstyle:checkstyle
-mvn verify -P owasp -DskipTests=false
+mvn verify -P owasp -DskipTests=true
 
-mvn jxr:jxr pmd:pmd -DskipTests=false
+mvn jxr:jxr pmd:pmd -DskipTests=true
 #mvn pmd:check
 
-mvn spotbugs:spotbugs -DskipTests=false
-mvn spotbugs:spotbugs -P security -DskipTests=false
-mvn verify sonar:sonar -DskipTests=false
+mvn spotbugs:spotbugs -DskipTests=true
+mvn spotbugs:spotbugs -P security -DskipTests=true
+mvn verify sonar:sonar -DskipTests=true

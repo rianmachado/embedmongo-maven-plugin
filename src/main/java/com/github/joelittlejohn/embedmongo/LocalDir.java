@@ -15,7 +15,9 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import java.io.IOException;
+
 public interface LocalDir {
-	String buildPathInputDir();
-	String buildPathOutputDir();
+	String buildPathInputDir() throws IOException ;
+	String buildPathOutputDir() throws IOException ;
 }

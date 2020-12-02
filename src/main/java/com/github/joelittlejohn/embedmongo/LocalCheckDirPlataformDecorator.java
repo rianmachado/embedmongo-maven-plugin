@@ -16,6 +16,7 @@
 package com.github.joelittlejohn.embedmongo;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
@@ -23,21 +24,24 @@ import de.flapdoodle.embed.process.distribution.Platform;
 
 public class LocalCheckDirPlataformDecorator extends LocalDirDecorator {
 
-	LocalCheckDirPlataformDecorator(LocalDir localDir) {
+	LocalCheckDirPlataformDecorator(LocalDir localDir) throws IOException {
 		super(localDir);
 	}
 
 	@Override
-	public String buildPathOutputDir() {
+	public String buildPathOutputDir() throws IOException {
 		return checkPlatformOutputDirectory(super.buildPathOutputDir());
 	}
 
-	private String checkPlatformOutputDirectory(String basePath) {
-		String dir = ConfigurationDirectoryMongoBinary.getInstance().getMAP_DIRECTORY_NAME()
+	private String checkPlatformOutputDirectory(String basePath) throws IOException {
+		String dir = ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName()
 				.get(Platform.detect().name());
 		File file = new File(basePath + dir).getParentFile().getAbsoluteFile();
 		if (!file.exists()) {
-			file.mkdir();
+			boolean created = file.mkdir();
+			if(!created) {
+				throw new IOException("Directory: " + file.getName() + " not created");
+			}
 		}
 		return file.getAbsolutePath();
 

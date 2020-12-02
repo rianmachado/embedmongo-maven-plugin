@@ -16,9 +16,10 @@
 package com.github.joelittlejohn.embedmongo.configuration;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -29,24 +30,24 @@ import de.flapdoodle.embed.process.distribution.Platform;
  */
 public final class ConfigurationDirectoryMongoBinary {
 
-	private static ConfigurationDirectoryMongoBinary instance = null;
+	private static ConfigurationDirectoryMongoBinary instance;
 
-	public static final String EMBEDMONGO_HOME = java.nio.file.Paths.get(System.getProperty("user.home"))
+	public static final String EMBEDMONGOHOME = java.nio.file.Paths.get(System.getProperty("user.home"))
 			.resolve(".embedmongo").toString();
 
-	private static String MONGO_BINARI_WINDOWS_VERSION = "mongo-binari-windows-version";
-	private static String MONGO_BINARI_MACOS_VERSION = "mongo-binari-macos-version";
-	private static String MONGO_BINARI_LINUX_VERSION = "mongo-binari-linux-version";
+	private static String mongoBinariWindowsVersion = "mongo-binari-windows-version";
+	private static String mongoBinariMacosVersion = "mongo-binari-macos-version";
+	private static String mongoBinariLinuxVersion = "mongo-binari-linux-version";
 
-	private static final String DIRECTORY_NAME_FOR_WINDOWS = "directory-name-for-windows";
-	private static final String DIRECTORY_NAME_FOR_MACOS = "directory-name-for-macos";
-	private static final String DIRECTORY_NAME_FOR_LINUX = "directory-name-for-linux";
+	private static final String DIRECTORYNAMEFORWINDOWS = "directory-name-for-windows";
+	private static final String DIRECTORYNAMEFORMACOS = "directory-name-for-macos";
+	private static final String DIRECTORYNAMEFORLINUX = "directory-name-for-linux";
 
-	private Map<String, String> MAP_MONGO_BINARY = new HashMap<String, String>();
-	private Map<String, String> MAP_DIRECTORY_NAME = new HashMap<String, String>();
-	private String ROOT_DIR;
+	private Map<String, String> mapMongoBinary = new ConcurrentHashMap<>();
+	private Map<String, String> mapDirectoryName = new ConcurrentHashMap<>();
+	private String rootDir;
 
-	public static synchronized ConfigurationDirectoryMongoBinary getInstance() {
+	public static synchronized ConfigurationDirectoryMongoBinary getInstance() throws IOException {
 		if (instance == null) {
 			instance = new ConfigurationDirectoryMongoBinary();
 			loadProperties(instance);
@@ -54,12 +55,15 @@ public final class ConfigurationDirectoryMongoBinary {
 		return instance;
 	}
 
-	private static void loadProperties(ConfigurationDirectoryMongoBinary app) {
+	private static void loadProperties(ConfigurationDirectoryMongoBinary app) throws IOException {
 
-		File embedmongo_home = new File(ConfigurationDirectoryMongoBinary.EMBEDMONGO_HOME);
-		
-		if (!embedmongo_home.exists()) {
-			embedmongo_home.mkdir();
+		File embedmongoHome = new File(ConfigurationDirectoryMongoBinary.EMBEDMONGOHOME);
+
+		if (!embedmongoHome.exists()) {
+			boolean createdHomeDirEmbedmongo = embedmongoHome.mkdir();
+			if(!createdHomeDirEmbedmongo) {
+				throw new IOException("Directory .embedmongo not created");
+			}
 		}
 
 		Yaml yaml = new Yaml();
@@ -67,49 +71,47 @@ public final class ConfigurationDirectoryMongoBinary {
 				.getResourceAsStream("application.yaml");
 		Map<String, Object> objPropertie = yaml.load(inputStream);
 
-		app.ROOT_DIR = objPropertie.get("root-dir").toString();
+		app.rootDir = objPropertie.get("root-dir").toString();
 
-		app.MAP_MONGO_BINARY.put(Platform.Windows.name(),
-				objPropertie.get(DIRECTORY_NAME_FOR_WINDOWS) + "/" + objPropertie.get(MONGO_BINARI_WINDOWS_VERSION));
+		app.mapMongoBinary.put(Platform.Windows.name(),
+				objPropertie.get(DIRECTORYNAMEFORWINDOWS) + "/" + objPropertie.get(mongoBinariWindowsVersion));
 
-		app.MAP_MONGO_BINARY.put(Platform.Linux.name(),
-				objPropertie.get(DIRECTORY_NAME_FOR_LINUX) + "/" + objPropertie.get(MONGO_BINARI_LINUX_VERSION));
+		app.mapMongoBinary.put(Platform.Linux.name(),
+				objPropertie.get(DIRECTORYNAMEFORLINUX) + "/" + objPropertie.get(mongoBinariLinuxVersion));
 
-		app.MAP_MONGO_BINARY.put(Platform.OS_X.name(),
-				objPropertie.get(DIRECTORY_NAME_FOR_MACOS) + "/" + objPropertie.get(MONGO_BINARI_MACOS_VERSION));
+		app.mapMongoBinary.put(Platform.OS_X.name(),
+				objPropertie.get(DIRECTORYNAMEFORMACOS) + "/" + objPropertie.get(mongoBinariMacosVersion));
 
-		app.MAP_DIRECTORY_NAME.put(Platform.Windows.name(),
-				java.io.File.separator + objPropertie.get(DIRECTORY_NAME_FOR_WINDOWS) + java.io.File.separator
-						+ objPropertie.get(MONGO_BINARI_WINDOWS_VERSION));
+		app.mapDirectoryName.put(Platform.Windows.name(),
+				java.io.File.separator + objPropertie.get(DIRECTORYNAMEFORWINDOWS) + java.io.File.separator
+						+ objPropertie.get(mongoBinariWindowsVersion));
 
-		app.MAP_DIRECTORY_NAME.put(Platform.Linux.name(),
-				java.io.File.separator + objPropertie.get(DIRECTORY_NAME_FOR_LINUX) + java.io.File.separator
-						+ objPropertie.get(MONGO_BINARI_LINUX_VERSION));
+		app.mapDirectoryName.put(Platform.Linux.name(), java.io.File.separator + objPropertie.get(DIRECTORYNAMEFORLINUX)
+				+ java.io.File.separator + objPropertie.get(mongoBinariLinuxVersion));
 
-		app.MAP_DIRECTORY_NAME.put(Platform.OS_X.name(),
-				java.io.File.separator + objPropertie.get(DIRECTORY_NAME_FOR_MACOS) + java.io.File.separator
-						+ objPropertie.get(MONGO_BINARI_MACOS_VERSION));
+		app.mapDirectoryName.put(Platform.OS_X.name(), java.io.File.separator + objPropertie.get(DIRECTORYNAMEFORMACOS)
+				+ java.io.File.separator + objPropertie.get(mongoBinariMacosVersion));
 	}
 
-	public String getROOT_DIR() {
-		return ROOT_DIR;
+	public String getRootDir() {
+		return rootDir;
 	}
 
-	public void setROOT_DIR(String rOOT_DIR) {
-		ROOT_DIR = rOOT_DIR;
+	public void setRootDir(String rootDir) {
+		this.rootDir = rootDir;
 	}
 
-	public Map<String, String> getMAP_MONGO_BINARY() {
-		return MAP_MONGO_BINARY;
+	public Map<String, String> getMapMongoBinary() {
+		return mapMongoBinary;
 	}
 
-	public Map<String, String> getMAP_DIRECTORY_NAME() {
-		return MAP_DIRECTORY_NAME;
+	public Map<String, String> getMapDirectoryName() {
+		return mapDirectoryName;
 	}
 
 	@Override
 	public String toString() {
-		return MAP_MONGO_BINARY.values().toString() + MAP_DIRECTORY_NAME.values().toString();
+		return mapMongoBinary.values().toString() + mapDirectoryName.values().toString();
 	}
 
 }

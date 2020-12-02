@@ -15,6 +15,8 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import java.io.IOException;
+
 import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 import de.flapdoodle.embed.process.distribution.Platform;
@@ -24,28 +26,28 @@ import de.flapdoodle.embed.process.distribution.Platform;
  */
 public class LocalDirPlataformDecorator extends LocalDirDecorator {
 
-	LocalDirPlataformDecorator(LocalDir localDir) {
+	LocalDirPlataformDecorator(LocalDir localDir) throws IOException {
 		super(localDir);
 	}
 
 	@Override
-	public String buildPathInputDir() {
+	public String buildPathInputDir() throws IOException {
 		String platformDir = plataformResolvInputPath();
 		return super.buildPathInputDir().concat(platformDir==null?"":platformDir);
 	}
 
 	@Override
-	public String buildPathOutputDir() {
+	public String buildPathOutputDir() throws IOException {
 		String platformDir = plataformResolvOutputPath();
 		return super.buildPathOutputDir().concat(platformDir);
 	}
 
-	public String plataformResolvInputPath() {
-		return ConfigurationDirectoryMongoBinary.getInstance().getMAP_MONGO_BINARY().get(Platform.detect().name());
+	public String plataformResolvInputPath() throws IOException {
+		return ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().get(Platform.detect().name());
 	}
 
-	public String plataformResolvOutputPath() {
-		return ConfigurationDirectoryMongoBinary.getInstance().getMAP_DIRECTORY_NAME().get(Platform.detect().name());
+	public String plataformResolvOutputPath() throws IOException {
+		return ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().get(Platform.detect().name());
 	}
 
 }

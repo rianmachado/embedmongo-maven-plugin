@@ -31,6 +31,10 @@ public class LoggersTest {
 	private String file;
 	private String encoding;
 
+	private static final String LOGFILE = "FILE";
+	private static final String LOGCONSOLE = "CONSOLE";
+	private static final String LOGNONE = "NONE";
+
 	@Before
 	public void init() {
 		file = "embedmongo.log";
@@ -55,9 +59,9 @@ public class LoggersTest {
 
 	@Test
 	public void LoggingStyle() {
-		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.FILE.name(), "FILE");
-		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.CONSOLE.name(), "CONSOLE");
-		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.NONE.name(), "NONE");
+		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.FILE.name(), LOGFILE);
+		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.CONSOLE.name(), LOGCONSOLE);
+		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.NONE.name(), LOGNONE);
 	}
 
 }

@@ -19,12 +19,17 @@ import de.flapdoodle.embed.process.io.IStreamProcessor;
 
 public class NoopStreamProcessor implements IStreamProcessor {
 
-    @Override
-    public void process(String block) {
-    }
+	@Override
+	public void process(String block) {
+		// TODO Analyze IStreamProcessor abstraction to overwrite the code or not
+		
+	}
 
-    @Override
-    public void onProcessed() {
-    }
+	@Override
+	public void onProcessed() {
+		// TODO Analyze IStreamProcessor abstraction to overwrite the code or not
+		
+	}
+
 
 }

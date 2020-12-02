@@ -15,6 +15,8 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import java.io.IOException;
+
 import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 /**
@@ -26,13 +28,13 @@ public class LocalDirBinaryMongo implements LocalDir {
 	}
 
 	@Override
-	public String buildPathInputDir() {
-		return ConfigurationDirectoryMongoBinary.getInstance().getROOT_DIR();
+	public String buildPathInputDir() throws IOException {
+		return ConfigurationDirectoryMongoBinary.getInstance().getRootDir();
 	}
 
 	@Override
 	public String buildPathOutputDir() {
-		return ConfigurationDirectoryMongoBinary.EMBEDMONGO_HOME;
+		return ConfigurationDirectoryMongoBinary.EMBEDMONGOHOME;
 	}
 
 }

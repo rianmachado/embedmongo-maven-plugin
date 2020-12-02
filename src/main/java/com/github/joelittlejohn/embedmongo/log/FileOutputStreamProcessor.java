@@ -15,14 +15,19 @@
  */
 package com.github.joelittlejohn.embedmongo.log;
 
-import java.io.FileOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import org.apache.commons.lang3.StringUtils;
 
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 
 public class FileOutputStreamProcessor implements IStreamProcessor {
-	private static OutputStreamWriter stream;
+	private static BufferedWriter stream;
 
 	private String logFile;
 	private String encoding;
@@ -36,7 +41,8 @@ public class FileOutputStreamProcessor implements IStreamProcessor {
 	public synchronized void process(String block) {
 		try {
 			if (stream == null) {
-				stream = new OutputStreamWriter(new FileOutputStream(logFile), encoding);
+				stream = Files.newBufferedWriter(Paths.get(logFile), Charset.forName(encoding.toUpperCase().trim()),
+						StandardOpenOption.WRITE);
 			}
 			stream.write(block);
 			stream.flush();
@@ -51,20 +57,20 @@ public class FileOutputStreamProcessor implements IStreamProcessor {
 	}
 
 	private synchronized void setLogFile(String logFile) {
-		if (logFile == null || logFile.trim().isEmpty()) {
+		if (StringUtils.isAllBlank(logFile)) {
 			throw new IllegalArgumentException("no logFile given");
 		}
 		this.logFile = logFile;
 	}
 
 	private synchronized void setEncoding(String encoding) {
-		if (encoding == null || encoding.trim().isEmpty()) {
+		if (StringUtils.isAllBlank(encoding)) {
 			throw new IllegalArgumentException("no encoding given");
 		}
 		this.encoding = encoding;
 	}
 
-	public static OutputStreamWriter getStream() {
+	public static BufferedWriter getStream() {
 		return stream;
 	}
 

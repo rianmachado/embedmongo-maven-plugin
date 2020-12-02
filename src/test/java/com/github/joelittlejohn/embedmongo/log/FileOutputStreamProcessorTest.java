@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
@@ -29,7 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.AfterClass;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -41,10 +40,11 @@ public class FileOutputStreamProcessorTest {
 	private static Path logFile;
 	private static String encoding;
 
-	@Before
-	public void init() {
+	@BeforeClass
+	public static void init() throws IOException {
 		TEXT = "Log";
 		logFile = Paths.get(System.getProperty("user.home")).resolve(".embedmongo/embedmongo.log");
+		Files.createFile(logFile);
 		encoding = "utf-8";
 	}
 

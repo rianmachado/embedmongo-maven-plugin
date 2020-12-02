@@ -231,7 +231,7 @@ public class MongoImportMojoTest {
 		mongoImportMojo.setParallel(true);
 		try {
 			mongoImportMojo.execute();
-			assertNull(mongoImportMojo.getImportProcess());
+			assertNull(mongoImportMojo.getMongoImportProcess());
 		} catch (MojoExecutionException | MojoFailureException e) {
 			e.printStackTrace();
 		}

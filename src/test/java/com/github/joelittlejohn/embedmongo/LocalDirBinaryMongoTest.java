@@ -18,6 +18,8 @@ package com.github.joelittlejohn.embedmongo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +41,8 @@ public class LocalDirBinaryMongoTest {
 	}
 
 	@Test
-	public void testBuildPathInputDir() {
-		assertEquals(ConfigurationDirectoryMongoBinary.getInstance().getROOT_DIR(),
+	public void testBuildPathInputDir() throws IOException {
+		assertEquals(ConfigurationDirectoryMongoBinary.getInstance().getRootDir(),
 				localDirBinaryMongo.buildPathInputDir());
 	}
 

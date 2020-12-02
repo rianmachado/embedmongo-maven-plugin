@@ -15,6 +15,8 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Random;
@@ -26,50 +28,48 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
 
-
 public class NetworkUtilsTest {
 
-    private final ScheduledExecutorService testPooledExecutor = Executors.newScheduledThreadPool(20);
+	private final ScheduledExecutorService testPooledExecutor = Executors.newScheduledThreadPool(20);
 
-    @After
-    public void tearDown() throws Exception {
-        testPooledExecutor.shutdown();
-    }
+	@After
+	public void tearDown() throws Exception {
+		testPooledExecutor.shutdown();
+	}
 
-    /**
-     * This test executes method
-     * {@link NetworkUtils#allocateRandomPort()}
-     * many times concurrently to make sure that port allocation works correctly
-     * under stress.
-     */
-    @Test
-    public void testAllocateRandomPort() throws Exception {
-        final int testAllocationCount = 10000;
-        final CountDownLatch allocationsCounter = new CountDownLatch(testAllocationCount);
+	/**
+	 * This test executes method {@link NetworkUtils#allocateRandomPort()} many
+	 * times concurrently to make sure that port allocation works correctly under
+	 * stress.
+	 */
+	@Test
+	public void testAllocateRandomPort() throws Exception {
+		final int testAllocationCount = 10000;
+		final CountDownLatch allocationsCounter = new CountDownLatch(testAllocationCount);
 
-        final Runnable allocatePort = new Runnable() {
-            @Override
-            public void run() {
-                int port = -1;
-                try {
-                    port = NetworkUtils.allocateRandomPort();
-                    new ServerSocket(port);
-                    // port has been bound successfully
-                } catch (IOException e) {
-                    throw new RuntimeException("Port " + port + " cannot be bind!");
-                } finally {
-                    allocationsCounter.countDown();
-                }
-            }
-        };
+		final Runnable allocatePort = new Runnable() {
+			@Override
+			public void run() {
+				int port = -1;
+				try {
+					port = NetworkUtils.allocateRandomPort();
+					new ServerSocket(port);
+					// port has been bound successfully
+				} catch (IOException e) {
+					throw new RuntimeException("Port " + port + " cannot be bind!");
+				} finally {
+					allocationsCounter.countDown();
+				}
+			}
+		};
 
-        final Random randomGenerator = new Random();
-        for (int i = 0; i < testAllocationCount; i++) {
-            // schedule execution a little to in the future to simulate less predictable environment
-            testPooledExecutor.schedule(allocatePort, randomGenerator.nextInt(10), TimeUnit.MILLISECONDS);
-        }
-        allocationsCounter.await(10, TimeUnit.SECONDS);
-    }
-    
+		final Random randomGenerator = new Random();
+		for (int i = 0; i < testAllocationCount; i++) {
+			// schedule execution a little to in the future to simulate less predictable
+			// environment
+			testPooledExecutor.schedule(allocatePort, randomGenerator.nextInt(10), TimeUnit.MILLISECONDS);
+		}
+		assertTrue(allocationsCounter.await(10, TimeUnit.SECONDS));
+	}
 
 }
