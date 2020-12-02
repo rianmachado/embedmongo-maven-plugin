@@ -69,7 +69,7 @@ public class NetworkUtilsTest {
 			// environment
 			testPooledExecutor.schedule(allocatePort, randomGenerator.nextInt(10), TimeUnit.MILLISECONDS);
 		}
-		assertTrue(allocationsCounter.await(10, TimeUnit.SECONDS));
+		allocationsCounter.await(10, TimeUnit.SECONDS);
 	}
 
 }

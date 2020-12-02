@@ -103,7 +103,7 @@ public class FileCopyBinaryTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testCopyBinaryFromResourceErro() {
 		try {
 
