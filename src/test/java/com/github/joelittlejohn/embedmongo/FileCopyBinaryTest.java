@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.github.joelittlejohn.embedmongo.constants.ParamLocalDir;
+import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 /**
  * @author rianmachado@gmail.com
@@ -44,8 +44,16 @@ public class FileCopyBinaryTest {
 	@BeforeClass
 	public static void init() {
 		try {
+
 			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
+
+			if (!outDirOs.toString().contains(".embedmongo")) {
+				throw new RuntimeException(
+						"DANGER..... OS TESTES PODERAO PAGAR DADOS DA HOME CASO NAO ESTEJA COM O DIRETORIO .embedmongo CONFIGURADO CORRETAMENTE");
+			}
+
 			Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -54,6 +62,12 @@ public class FileCopyBinaryTest {
 
 	@AfterClass
 	public static void finish() {
+
+		if (!outDirOs.toString().contains(".embedmongo")) {
+			throw new RuntimeException(
+					"DANGER..... OS TESTES PODERAO PAGAR DADOS DA HOME CASO NAO ESTEJA COM O DIRETORIO .embedmongo CONFIGURADO CORRETAMENTE");
+		}
+
 		try {
 			Path out = Paths.get(to);
 			if (Files.exists(out)) {
@@ -69,23 +83,51 @@ public class FileCopyBinaryTest {
 
 	@Test
 	public void testCopyBinaryFromResource() {
+
+		boolean test = false;
+
 		try {
+
 			StartMojo startMojo = new StartMojo();
+
 			startMojo.loadBinaryMongoFromResource();
-			assertTrue(Files.exists(Paths.get(to)));
+
+			test = Files.exists(Paths.get(to));
+
+			assertTrue(test);
+
 		} catch (Exception e) {
-			e.printStackTrace();
+
+			assertTrue(test);
+
 		}
 	}
 
 	@Test
 	public void testCopyBinaryFromResourceErro() {
 		try {
+
 			StartMojo startMojo = new StartMojo();
-			ParamLocalDir.MAP_MONGO_BINARY.clear();
+
+			ConfigurationDirectoryMongoBinary.getInstance().getMAP_MONGO_BINARY().clear();
+
 			startMojo.loadBinaryMongoFromResource();
+
 		} catch (Exception e) {
-			assertTrue(e.getLocalizedMessage().startsWith("Cannot invoke"));
+
+			assertTrue("Mongo binary not found".equalsIgnoreCase(e.getLocalizedMessage()));
+		}
+	}
+
+	@Test
+	public void testCopyFromToErro() {
+		try {
+			;
+			FileCopy.copy(null, "demo.test");
+
+		} catch (Exception e) {
+
+			assertTrue("Mongo binary not found".equalsIgnoreCase(e.getLocalizedMessage()));
 		}
 	}
 

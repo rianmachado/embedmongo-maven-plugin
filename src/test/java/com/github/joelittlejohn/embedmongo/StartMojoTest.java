@@ -51,13 +51,26 @@ public class StartMojoTest {
 	@BeforeClass
 	public static void init() {
 		try {
+
 			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
+
+			if (!outDirOs.toString().contains(".embedmongo")) {
+				throw new RuntimeException(
+						"DANGER..... OS TESTES PODERAO PAGAR DADOS DA HOME CASO NAO ESTEJA COM O DIRETORIO .embedmongo CONFIGURADO CORRETAMENTE");
+			}
+
 			Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+
 			new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir();
+
 			LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
+
 			from = localDirDecorator.buildPathInputDir();
+
 			to = localDirDecorator.buildPathOutputDir();
+
 			FileCopy.copy(from, to);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -67,6 +80,12 @@ public class StartMojoTest {
 	@AfterClass
 	public static void finish() {
 		try {
+
+			if (!outDirOs.toString().contains(".embedmongo")) {
+				throw new RuntimeException(
+						"DANGER..... OS TESTES PODERAO PAGAR DADOS DA HOME CASO NAO ESTEJA COM O DIRETORIO .embedmongo CONFIGURADO CORRETAMENTE");
+			}
+
 			Path out = Paths.get(to);
 			if (Files.exists(out)) {
 				Files.delete(out);
@@ -99,7 +118,7 @@ public class StartMojoTest {
 
 		StopMojo stopMojo = new StopMojo();
 		stopMojo.setProject(new MavenProject());
-		stopMojo.setPort(27017);
+		stopMojo.setPort(port);
 		stopMojo.setVersion("2.7.1");
 		stopMojo.setPluginContext(startMojo.getPluginContext());
 		try {
@@ -112,6 +131,37 @@ public class StartMojoTest {
 		}
 
 	}
+	
+	
+	@Test
+	public void testExecuteStartStopRandomPortTrue() {
+
+
+		StartMojo startMojo = new StartMojo();
+		startMojo.setProject(new MavenProject());
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+		startMojo.setLogging(Loggers.LoggingStyle.CONSOLE.name());
+		startMojo.onSkip();
+		startMojo.setRandomPort(true);
+
+		StopMojo stopMojo = new StopMojo();
+		stopMojo.setProject(new MavenProject());
+		stopMojo.setVersion("2.7.1");
+		stopMojo.setPluginContext(startMojo.getPluginContext());
+		try {
+			startMojo.executeStart();
+			stopMojo.execute();
+			assertTrue("Successfully started",
+					startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME) != null);
+		} catch (MojoExecutionException | MojoFailureException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 
 	@Test
 	public void testExecuteStartStopErro() {
@@ -130,7 +180,7 @@ public class StartMojoTest {
 		try {
 			stopMojo.execute();
 		} catch (MojoExecutionException | MojoFailureException e) {
-			assertNull(	startMojo.getFeatures());
+			assertNull(startMojo.getFeatures());
 			assertNull(startMojo.getProject());
 			assertTrue("No mongod process found, it appears embedmongo:start was not called"
 					.equalsIgnoreCase(e.getLocalizedMessage()));

@@ -17,7 +17,7 @@ package com.github.joelittlejohn.embedmongo;
 
 import java.io.File;
 
-import com.github.joelittlejohn.embedmongo.constants.ParamLocalDir;
+import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 import de.flapdoodle.embed.process.distribution.Platform;
 
@@ -33,8 +33,9 @@ public class LocalCheckDirPlataformDecorator extends LocalDirDecorator {
 	}
 
 	private String checkPlatformOutputDirectory(String basePath) {
-		String dir = ParamLocalDir.MAP_DIRECTORY_NAME.get(Platform.detect().name());
-		File file = new File(basePath+dir).getParentFile().getAbsoluteFile();
+		String dir = ConfigurationDirectoryMongoBinary.getInstance().getMAP_DIRECTORY_NAME()
+				.get(Platform.detect().name());
+		File file = new File(basePath + dir).getParentFile().getAbsoluteFile();
 		if (!file.exists()) {
 			file.mkdir();
 		}

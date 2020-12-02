@@ -28,25 +28,23 @@ public class FileCopy {
 
 	public static void copy(String from, String to) throws IOException {
 		InputStream inStream = null;
-		OutputStream outStream = null;
-		try {
-			File toFile = new File(to);
-			ClassLoader classLoader = FileCopy.class.getClassLoader();
-			inStream = classLoader.getResourceAsStream(from);
-			outStream = new FileOutputStream(toFile);
+		File toFile = new File(to);
+		if (from == null) {
+			throw new RuntimeException("Mongo binary not found");
+		}
+		ClassLoader classLoader = FileCopy.class.getClassLoader();
+		inStream = classLoader.getResourceAsStream(from);
+
+		try (OutputStream outStream = new FileOutputStream(toFile)) {
 			byte[] buffer = new byte[1024];
 			int length;
 			while ((length = inStream.read(buffer)) > 0) {
 				outStream.write(buffer, 0, length);
 				outStream.flush();
 			}
-		} finally {
-			if (inStream != null)
-				inStream.close();
-
-			if (outStream != null)
-				outStream.close();
 		}
+
 	}
+
 
 }

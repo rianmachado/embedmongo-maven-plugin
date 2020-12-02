@@ -6,12 +6,12 @@ echo '*                                                            *'
 echo '**************************************************************' 
 
 mvn verify -P cobertura
-mvn checkstyle:checkstyle
-mvn verify -P owasp
+#mvn checkstyle:checkstyle
+mvn verify -P owasp -DskipTests=false
 
-mvn jxr:jxr pmd:pmd
-mvn pmd:check
+mvn jxr:jxr pmd:pmd -DskipTests=false
+#mvn pmd:check
 
-mvn spotbugs:spotbugs
-mvn spotbugs:spotbugs -P security
-mvn verify sonar:sonar
+mvn spotbugs:spotbugs -DskipTests=false
+mvn spotbugs:spotbugs -P security -DskipTests=false
+mvn verify sonar:sonar -DskipTests=false

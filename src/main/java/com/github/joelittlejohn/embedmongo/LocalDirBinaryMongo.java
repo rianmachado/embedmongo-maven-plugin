@@ -15,7 +15,7 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import com.github.joelittlejohn.embedmongo.configuration.LoadConfiguration;
+import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 /**
  * @author rianmachado@gmail.com
@@ -27,12 +27,12 @@ public class LocalDirBinaryMongo implements LocalDir {
 
 	@Override
 	public String buildPathInputDir() {
-		return LoadConfiguration.ROOT_DIR;
+		return ConfigurationDirectoryMongoBinary.getInstance().getROOT_DIR();
 	}
 
 	@Override
 	public String buildPathOutputDir() {
-		return java.nio.file.Paths.get(System.getProperty("user.home")).resolve(".embedmongo").toString();
+		return ConfigurationDirectoryMongoBinary.EMBEDMONGO_HOME;
 	}
 
 }

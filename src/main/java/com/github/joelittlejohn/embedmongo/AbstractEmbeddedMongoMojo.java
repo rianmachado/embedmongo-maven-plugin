@@ -176,6 +176,10 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
 	public void setVersion(String version) {
 		this.version = version;
 	}
+
+	public void setRandomPort(boolean randomPort) {
+		this.randomPort = randomPort;
+	}
     
     
 

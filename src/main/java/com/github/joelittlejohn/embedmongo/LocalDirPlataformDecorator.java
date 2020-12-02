@@ -15,7 +15,7 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import com.github.joelittlejohn.embedmongo.constants.ParamLocalDir;
+import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 import de.flapdoodle.embed.process.distribution.Platform;
 
@@ -41,11 +41,11 @@ public class LocalDirPlataformDecorator extends LocalDirDecorator {
 	}
 
 	public String plataformResolvInputPath() {
-		return ParamLocalDir.MAP_MONGO_BINARY.get(Platform.detect().name());
+		return ConfigurationDirectoryMongoBinary.getInstance().getMAP_MONGO_BINARY().get(Platform.detect().name());
 	}
 
 	public String plataformResolvOutputPath() {
-		return ParamLocalDir.MAP_DIRECTORY_NAME.get(Platform.detect().name());
+		return ConfigurationDirectoryMongoBinary.getInstance().getMAP_DIRECTORY_NAME().get(Platform.detect().name());
 	}
 
 }

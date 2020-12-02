@@ -8,6 +8,7 @@
 .project
 .settings
 .factorypath
+.DS_Store
 
 # IntelliJ Idea files #
 *.iml

@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.github.joelittlejohn.embedmongo.configuration.LoadConfiguration;
+import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 /**
  * @author rianmachado@gmail.com
@@ -40,7 +40,8 @@ public class LocalDirBinaryMongoTest {
 
 	@Test
 	public void testBuildPathInputDir() {
-		assertEquals(LoadConfiguration.ROOT_DIR, localDirBinaryMongo.buildPathInputDir());
+		assertEquals(ConfigurationDirectoryMongoBinary.getInstance().getROOT_DIR(),
+				localDirBinaryMongo.buildPathInputDir());
 	}
 
 	@Test

@@ -18,7 +18,7 @@ package com.github.joelittlejohn.embedmongo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.joelittlejohn.embedmongo.configuration.LoadConfiguration;
+import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
 
 public class LocalDirDecorator implements LocalDir {
 	
@@ -27,7 +27,7 @@ public class LocalDirDecorator implements LocalDir {
 	private LocalDir wrappee;
 
 	LocalDirDecorator(LocalDir localDir) {
-		LoadConfiguration config = LoadConfiguration.builder().build();
+		ConfigurationDirectoryMongoBinary config = ConfigurationDirectoryMongoBinary.getInstance();
 		logger.info(config.toString());
 		this.wrappee = localDir;
 	}

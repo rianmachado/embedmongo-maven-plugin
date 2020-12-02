@@ -15,15 +15,10 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
-import static org.apache.commons.lang3.StringUtils.contains;
-import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -49,12 +44,8 @@ import de.flapdoodle.embed.mongo.config.RuntimeConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
-import de.flapdoodle.embed.process.config.store.HttpProxyFactory;
 import de.flapdoodle.embed.process.config.store.IDownloadConfig;
-import de.flapdoodle.embed.process.config.store.IProxyFactory;
-import de.flapdoodle.embed.process.config.store.NoProxyFactory;
 import de.flapdoodle.embed.process.distribution.Distribution;
-import de.flapdoodle.embed.process.exceptions.DistributionException;
 import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor;
 import de.flapdoodle.embed.process.store.IArtifactStore;
 
@@ -192,8 +183,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 					.build();
 
 			executable = MongodStarter.getInstance(runtimeConfig).prepare(config);
-		} catch (DistributionException e) {
-			throw new MojoExecutionException("Failed to download MongoDB distribution: " + e.withDistribution(), e);
+
 		} catch (IOException e) {
 			throw new MojoExecutionException("Unable to Config MongoDB: ", e);
 		}
@@ -201,16 +191,14 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		try {
 			MongodProcess mongod = executable.start();
 
-			//TODO: CUNSTOM RIAN
-			//if (isWait()) {
-			while (isWait()) {
-				try {
-					TimeUnit.MINUTES.sleep(5);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-			//}
+			// TODO: CUNSTOM RIAN
+//			while (isWait()) {
+//				try {
+//					TimeUnit.MINUTES.sleep(5);
+//				} catch (InterruptedException e) {
+//					Thread.currentThread().interrupt();
+//				}
+//			}
 
 			getPluginContext().put(MONGOD_CONTEXT_PROPERTY_NAME, mongod);
 		} catch (IOException e) {
@@ -242,37 +230,16 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 			return Loggers.console();
 		case FILE:
 			return Loggers.file(logFile, logFileEncoding);
-		case NONE:
-			return Loggers.none();
 		default:
-			throw new MojoFailureException(
-					"Unexpected logging style encountered: \"" + logging + "\" -> " + loggingStyle);
+			return Loggers.none();
 		}
 
 	}
 
 	private IArtifactStore getArtifactStore() {
 		IDownloadConfig downloadConfig = new DownloadConfigBuilder().defaultsForCommand(Command.MongoD)
-				.proxyFactory(getProxyFactory(settings)).downloadPath(downloadPath).build();
+				.downloadPath(downloadPath).build();
 		return new ExtractedArtifactStoreBuilder().defaults(Command.MongoD).download(downloadConfig).build();
-	}
-
-	public IProxyFactory getProxyFactory(Settings settings) {
-		URI downloadUri = URI.create(downloadPath);
-		final String downloadHost = downloadUri.getHost();
-		final String downloadProto = downloadUri.getScheme();
-
-		if (settings.getProxies() != null) {
-			for (org.apache.maven.settings.Proxy proxy : (List<org.apache.maven.settings.Proxy>) settings
-					.getProxies()) {
-				if (proxy.isActive() && equalsIgnoreCase(proxy.getProtocol(), downloadProto)
-						&& !contains(proxy.getNonProxyHosts(), downloadHost)) {
-					return new HttpProxyFactory(proxy.getHost(), proxy.getPort());
-				}
-			}
-		}
-
-		return new NoProxyFactory();
 	}
 
 	private String getDataDirectory() {
@@ -304,9 +271,5 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	public void setLogging(String logging) {
 		this.logging = logging;
 	}
-	
-	
-	
-	
 
 }
