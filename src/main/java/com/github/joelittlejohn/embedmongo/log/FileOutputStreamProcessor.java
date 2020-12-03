@@ -23,10 +23,15 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 
 public class FileOutputStreamProcessor implements IStreamProcessor {
+
+	private static Logger logger = LoggerFactory.getLogger(FileOutputStreamProcessor.class);
+
 	private static BufferedWriter stream;
 
 	private String logFile;
@@ -38,17 +43,20 @@ public class FileOutputStreamProcessor implements IStreamProcessor {
 	}
 
 	@Override
-	public synchronized void process(String block) {
-		try {
-			if (stream == null) {
-				stream = Files.newBufferedWriter(Paths.get(logFile), Charset.forName(encoding.toUpperCase().trim()),
-						StandardOpenOption.WRITE);
+	public void process(String block) {
+		synchronized (this) {
+			try {
+				if (stream == null) {
+					stream = Files.newBufferedWriter(Paths.get(logFile), Charset.forName(encoding.toUpperCase().trim()),
+							StandardOpenOption.WRITE);
+				}
+				stream.write(block);
+				stream.flush();
+			} catch (IOException e) {
+				logger.error(e.getLocalizedMessage(), e);
 			}
-			stream.write(block);
-			stream.flush();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
 		}
+
 	}
 
 	@Override
@@ -56,18 +64,25 @@ public class FileOutputStreamProcessor implements IStreamProcessor {
 		process("\n");
 	}
 
-	private synchronized void setLogFile(String logFile) {
-		if (StringUtils.isAllBlank(logFile)) {
-			throw new IllegalArgumentException("no logFile given");
+	private void setLogFile(String logFile) {
+		synchronized (this) {
+			if (StringUtils.isAllBlank(logFile)) {
+				throw new IllegalArgumentException("no logFile given");
+			}
+			this.logFile = logFile;
 		}
-		this.logFile = logFile;
+
 	}
 
-	private synchronized void setEncoding(String encoding) {
-		if (StringUtils.isAllBlank(encoding)) {
-			throw new IllegalArgumentException("no encoding given");
+	private void setEncoding(String encoding) {
+		
+		synchronized (this) {
+			if (StringUtils.isAllBlank(encoding)) {
+				throw new IllegalArgumentException("no encoding given");
+			}
+			this.encoding = encoding;
 		}
-		this.encoding = encoding;
+
 	}
 
 	public static BufferedWriter getStream() {

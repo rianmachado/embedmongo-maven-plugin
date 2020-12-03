@@ -101,7 +101,7 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
 	protected IFeatureAwareVersion getVersion() {
 
 		StringBuilder versionEnumName = new StringBuilder();
-		versionEnumName.append(this.version.toUpperCase().replaceAll("\\.", "_"));
+		versionEnumName.append(this.version.toUpperCase().replace("\\.", "_"));
 
 		if (versionEnumName.charAt(0) != 'V') {
 			versionEnumName.append('V');

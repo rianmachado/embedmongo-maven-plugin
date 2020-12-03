@@ -26,6 +26,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.settings.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.joelittlejohn.embedmongo.log.Loggers;
 import com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle;
@@ -45,7 +47,6 @@ import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.process.config.IRuntimeConfig;
 import de.flapdoodle.embed.process.config.io.ProcessOutput;
 import de.flapdoodle.embed.process.config.store.IDownloadConfig;
-import de.flapdoodle.embed.process.distribution.Distribution;
 import de.flapdoodle.embed.process.runtime.ICommandLinePostProcessor;
 import de.flapdoodle.embed.process.store.IArtifactStore;
 
@@ -61,6 +62,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 
 	private static final String PACKAGE_NAME = StartMojo.class.getPackage().getName();
 	public static final String MONGOD_CONTEXT_PROPERTY_NAME = PACKAGE_NAME + ".mongod";
+	private static Logger logger = LoggerFactory.getLogger(StartMojo.class);
 
 	/**
 	 * The location of a directory that will hold the MongoDB data files.
@@ -142,7 +144,6 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	public void executeStart() throws MojoExecutionException, MojoFailureException {
 		MongodExecutable executable;
 
-		// TODDO: Rian Vasconcelos
 		try {
 			loadBinaryMongoFromResource();
 		} catch (IOException ioException) {
@@ -152,12 +153,10 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		try {
 
 			final List<String> mongodArgs = this.createMongodArgsList();
-			final ICommandLinePostProcessor commandLinePostProcessor = new ICommandLinePostProcessor() {
-				@Override
-				public List<String> process(final Distribution distribution, final List<String> args) {
-					args.addAll(mongodArgs);
-					return args;
-				}
+
+			ICommandLinePostProcessor commandLinePostProcessor = (distribution, args) -> {
+				args.addAll(mongodArgs);
+				return args;
 			};
 
 			IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder().defaults(Command.MongoD)
@@ -202,7 +201,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		return mongodArgs;
 	}
 
-	private ProcessOutput getOutputConfig() throws MojoFailureException {
+	private ProcessOutput getOutputConfig() {
 
 		if (logging == null) {
 			logging = LoggingStyle.NONE.name();
@@ -236,11 +235,19 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	}
 
 	public void loadBinaryMongoFromResource() throws IOException {
-		File dirOut = new File(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
-		if (dirOut != null && dirOut.listFiles() != null && dirOut.listFiles().length == 0) {
+
+		LocalDirBinaryMongo localDirBinaryMongo = new LocalDirBinaryMongo();
+		LocalCheckDirPlataformDecorator localCheckDirPlataformDecorator = new LocalCheckDirPlataformDecorator(
+				localDirBinaryMongo);
+		String pathOutputDir = localCheckDirPlataformDecorator.buildPathOutputDir();
+		File dirOut = new File(pathOutputDir);
+
+		if (dirOut.exists() && dirOut.listFiles() != null) {
 			LocalDirDecorator localDirDecorator = new LocalDirPlataformDecorator(new LocalDirBinaryMongo());
 			String in = localDirDecorator.buildPathInputDir();
 			String out = localDirDecorator.buildPathOutputDir();
+			logger.info(in);
+			logger.info(out);
 			FileCopy.copy(in, out);
 		}
 	}

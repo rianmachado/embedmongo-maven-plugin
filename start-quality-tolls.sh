@@ -5,6 +5,8 @@ echo '*                Quality Tools Rian                          *'
 echo '*                                                            *'
 echo '**************************************************************' 
 
+mvn clean
+mvn compile 
 mvn verify -P cobertura
 #mvn checkstyle:checkstyle
 mvn verify -P owasp -DskipTests=true

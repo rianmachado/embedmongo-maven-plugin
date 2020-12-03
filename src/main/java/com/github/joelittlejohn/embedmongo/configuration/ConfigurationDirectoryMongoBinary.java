@@ -47,12 +47,15 @@ public final class ConfigurationDirectoryMongoBinary {
 	private Map<String, String> mapDirectoryName = new ConcurrentHashMap<>();
 	private String rootDir;
 
-	public static synchronized ConfigurationDirectoryMongoBinary getInstance() throws IOException {
-		if (instance == null) {
-			instance = new ConfigurationDirectoryMongoBinary();
-			loadProperties(instance);
+	public static ConfigurationDirectoryMongoBinary getInstance() throws IOException {
+
+		synchronized (ConfigurationDirectoryMongoBinary.class) {
+			if (instance == null) {
+				instance = new ConfigurationDirectoryMongoBinary();
+				loadProperties(instance);
+			}
+			return instance;
 		}
-		return instance;
 	}
 
 	private static void loadProperties(ConfigurationDirectoryMongoBinary app) throws IOException {
@@ -61,7 +64,7 @@ public final class ConfigurationDirectoryMongoBinary {
 
 		if (!embedmongoHome.exists()) {
 			boolean createdHomeDirEmbedmongo = embedmongoHome.mkdir();
-			if(!createdHomeDirEmbedmongo) {
+			if (!createdHomeDirEmbedmongo) {
 				throw new IOException("Directory .embedmongo not created");
 			}
 		}
@@ -107,11 +110,6 @@ public final class ConfigurationDirectoryMongoBinary {
 
 	public Map<String, String> getMapDirectoryName() {
 		return mapDirectoryName;
-	}
-
-	@Override
-	public String toString() {
-		return mapMongoBinary.values().toString() + mapDirectoryName.values().toString();
 	}
 
 }

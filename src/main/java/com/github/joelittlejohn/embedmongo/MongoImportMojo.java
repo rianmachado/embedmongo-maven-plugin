@@ -31,10 +31,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import de.flapdoodle.embed.mongo.MongoImportExecutable;
 import de.flapdoodle.embed.mongo.MongoImportProcess;
 import de.flapdoodle.embed.mongo.MongoImportStarter;
-import de.flapdoodle.embed.mongo.config.IMongoImportConfig;
-import de.flapdoodle.embed.mongo.config.MongoImportConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
-import de.flapdoodle.embed.mongo.config.Timeout;
 
 @Mojo(name = "mongo-import", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
 public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
@@ -70,7 +66,7 @@ public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
 
 		getLog().info("Default import database: " + defaultImportDatabase);
 
-		IMongoImportConfig mongoImportConfig;
+		MongoImportMojoHelper mongoImportMojoHelper = new MongoImportMojoHelper();
 
 		boolean networkUtils = NetworkUtils.localhostIsIPv6();
 
@@ -85,13 +81,8 @@ public class MongoImportMojo extends AbstractEmbeddedMongoMojo {
 				database = defaultImportDatabase;
 			}
 
-			mongoImportConfig = new MongoImportConfigBuilder().version(getVersion())
-					.net(new Net(getPort(), networkUtils)).db(database).collection(importData.getCollection())
-					.upsert(importData.getUpsertOnImport()).dropCollection(importData.getDropOnImport())
-					.importFile(importData.getFile()).jsonArray(true).timeout(new Timeout(importData.getTimeout()))
-					.build();
-
-			MongoImportExecutable mongoImport = MongoImportStarter.getDefaultInstance().prepare(mongoImportConfig);
+			MongoImportExecutable mongoImport = MongoImportStarter.getDefaultInstance().prepare(mongoImportMojoHelper
+					.buildImpotConfig(importData, getVersion(), getPort(), networkUtils, database));
 
 			mongoImportProcess = mongoImport.start();
 

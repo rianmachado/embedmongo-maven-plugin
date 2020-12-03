@@ -15,6 +15,7 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -124,8 +125,7 @@ public class StartMojoTest {
 		try {
 			startMojo.executeStart();
 			stopMojo.execute();
-			assertTrue("Successfully started",
-					startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME) != null);
+			assertNotNull(startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME));
 		} catch (MojoExecutionException | MojoFailureException e) {
 			e.printStackTrace();
 		}
@@ -154,8 +154,7 @@ public class StartMojoTest {
 		try {
 			startMojo.executeStart();
 			stopMojo.execute();
-			assertTrue("Successfully started",
-					startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME) != null);
+			assertNotNull(startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME));
 		} catch (MojoExecutionException | MojoFailureException e) {
 			e.printStackTrace();
 		}

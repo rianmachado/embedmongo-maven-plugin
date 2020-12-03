@@ -17,20 +17,12 @@ package com.github.joelittlejohn.embedmongo;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
-
 public class LocalDirDecorator implements LocalDir {
 	
-	private static Logger logger = LoggerFactory.getLogger(LocalDirDecorator.class);
 
 	private LocalDir wrappee;
 
-	LocalDirDecorator(LocalDir localDir) throws IOException {
-		ConfigurationDirectoryMongoBinary config = ConfigurationDirectoryMongoBinary.getInstance();
-		logger.info(config.toString());
+	LocalDirDecorator(LocalDir localDir) {
 		this.wrappee = localDir;
 	}
 

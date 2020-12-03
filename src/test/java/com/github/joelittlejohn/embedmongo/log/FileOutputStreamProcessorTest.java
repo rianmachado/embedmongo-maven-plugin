@@ -90,8 +90,7 @@ public class FileOutputStreamProcessorTest {
 				e.printStackTrace();
 			}
 		}
-
-		assertTrue(TEXT.trim().equals(resultStringBuilder.toString().trim()));
+		assertEquals(TEXT, resultStringBuilder.toString().trim());
 	}
 
 	@Test

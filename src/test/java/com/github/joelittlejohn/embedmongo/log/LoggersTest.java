@@ -58,10 +58,18 @@ public class LoggersTest {
 	}
 
 	@Test
-	public void LoggingStyle() {
-		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.FILE.name(), LOGFILE);
-		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.CONSOLE.name(), LOGCONSOLE);
-		assertEquals(com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.NONE.name(), LOGNONE);
+	public void testLoggingStyleFile() {
+		assertEquals(LOGFILE, com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.FILE.name());
+	}
+
+	@Test
+	public void testLoggingStyleConsole() {
+		assertEquals(LOGCONSOLE, com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.CONSOLE.name());
+	}
+
+	@Test
+	public void testLoggingStyleNone() {
+		assertEquals(LOGNONE, com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle.NONE.name());
 	}
 
 }

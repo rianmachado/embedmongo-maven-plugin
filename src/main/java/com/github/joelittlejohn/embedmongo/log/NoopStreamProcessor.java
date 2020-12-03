@@ -15,21 +15,23 @@
  */
 package com.github.joelittlejohn.embedmongo.log;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.flapdoodle.embed.process.io.IStreamProcessor;
 
 public class NoopStreamProcessor implements IStreamProcessor {
 
+	private static Logger logger = LoggerFactory.getLogger(NoopStreamProcessor.class);
+
 	@Override
 	public void process(String block) {
-		// TODO Analyze IStreamProcessor abstraction to overwrite the code or not
-		
+		logger.info(block);
 	}
 
 	@Override
 	public void onProcessed() {
-		// TODO Analyze IStreamProcessor abstraction to overwrite the code or not
-		
+		logger.info("onProcessed called....");
 	}
-
 
 }
