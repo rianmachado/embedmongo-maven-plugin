@@ -162,10 +162,6 @@ public abstract class AbstractEmbeddedMongoMojo extends AbstractMojo {
 		return randomPort;
 	}
 
-	public boolean isWait() {
-		return wait;
-	}
-
 	public MavenProject getProject() {
 		return project;
 	}

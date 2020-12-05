@@ -107,9 +107,16 @@ public final class ConfigurationDirectoryMongoBinary {
 	public Map<String, String> getMapMongoBinary() {
 		return mapMongoBinary;
 	}
+	
 
 	public Map<String, String> getMapDirectoryName() {
 		return mapDirectoryName;
 	}
+
+	public static void setInstance(ConfigurationDirectoryMongoBinary instance) {
+		ConfigurationDirectoryMongoBinary.instance = instance;
+	}
+	
+	
 
 }

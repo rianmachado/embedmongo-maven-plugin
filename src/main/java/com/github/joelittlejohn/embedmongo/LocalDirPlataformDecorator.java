@@ -32,22 +32,32 @@ public class LocalDirPlataformDecorator extends LocalDirDecorator {
 
 	@Override
 	public String buildPathInputDir() throws IOException {
-		String platformDir = plataformResolvInputPath();
-		return super.buildPathInputDir().concat(platformDir==null?"":platformDir);
+		String platformDir = plataformResolverInputPath();
+		return super.buildPathInputDir().concat(platformDir);
 	}
 
 	@Override
 	public String buildPathOutputDir() throws IOException {
-		String platformDir = plataformResolvOutputPath();
+		String platformDir = plataformResolverOutputPath();
 		return super.buildPathOutputDir().concat(platformDir);
 	}
 
-	public String plataformResolvInputPath() throws IOException {
-		return ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().get(Platform.detect().name());
+	public String plataformResolverInputPath() throws IOException {
+		String directoryMongoBinary = ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary()
+				.get(Platform.detect().name());
+		if (directoryMongoBinary == null) {
+			throw new IOException("Input directory not found");
+		}
+		return directoryMongoBinary;
 	}
 
-	public String plataformResolvOutputPath() throws IOException {
-		return ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().get(Platform.detect().name());
+	public String plataformResolverOutputPath() throws IOException {
+		String directoryName = ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName()
+				.get(Platform.detect().name());
+		if (directoryName == null) {
+			throw new IOException("Output directory not found");
+		}
+		return directoryName;
 	}
 
 }

@@ -57,7 +57,7 @@ import de.flapdoodle.embed.process.store.IArtifactStore;
  * @see <a href=
  *      "http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de">http://github.com/flapdoodle-oss/embedmongo.flapdoodle.de</a>
  */
-@Mojo(name = "start", defaultPhase = LifecyclePhase.PRE_INTEGRATION_TEST)
+@Mojo(name = "start", defaultPhase = LifecyclePhase.TEST_COMPILE)
 public class StartMojo extends AbstractEmbeddedMongoMojo {
 
 	private static final String PACKAGE_NAME = StartMojo.class.getPackage().getName();

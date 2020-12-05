@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,6 +32,8 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
+
+import de.flapdoodle.embed.process.distribution.Platform;
 
 /**
  * @author rianmachado@gmail.com
@@ -41,9 +44,20 @@ public class FileCopyBinaryTest {
 	private static String to;
 	private static Path outDirOs;
 
+	private static String plataform = Platform.detect().name();
+	private static String valueBinaryPlataform;
+	private static String directoryNamePlataform;
+
+	private static String fileZipMock = "demo.mock.zip.nao.existe";
+
 	@BeforeClass
 	public static void init() throws IOException {
 		try {
+
+			valueBinaryPlataform = ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().get(plataform);
+
+			directoryNamePlataform = ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName()
+					.get(plataform);
 
 			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
 
@@ -69,13 +83,35 @@ public class FileCopyBinaryTest {
 		}
 
 		try {
+
 			Path out = Paths.get(to);
+
 			if (Files.exists(out)) {
 				Files.delete(out);
 			}
 			if (Files.exists(outDirOs)) {
 				Files.delete(outDirOs);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@After
+	public void reconfigurationMapProperties() {
+		try {
+
+			if (ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().containsValue(fileZipMock)
+					|| !ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().containsKey(plataform)
+					|| !ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().containsKey(plataform)) {
+
+				ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().put(plataform,
+						valueBinaryPlataform);
+
+				ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().put(plataform,
+						directoryNamePlataform);
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -103,15 +139,28 @@ public class FileCopyBinaryTest {
 		}
 	}
 
-	//@Test
+	@Test
 	public void testCopyBinaryFromResourceErro() {
+
 		try {
 
 			StartMojo startMojo = new StartMojo();
 
-			ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().clear();
+			ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().put(plataform, fileZipMock);
 
 			startMojo.loadBinaryMongoFromResource();
+
+		} catch (Exception e) {
+			assertTrue(e instanceof NullPointerException);
+		}
+
+	}
+
+	@Test
+	public void testCopyFromToErro() {
+		try {
+
+			FileCopy.copy(null, "demo.test");
 
 		} catch (Exception e) {
 
@@ -120,14 +169,36 @@ public class FileCopyBinaryTest {
 	}
 
 	@Test
-	public void testCopyFromToErro() {
+	public void testPlataformResolverInputPathErro() {
 		try {
-			;
-			FileCopy.copy(null, "demo.test");
+
+			LocalDirPlataformDecorator localDirPlataformDecorator = new LocalDirPlataformDecorator(
+					new LocalDirBinaryMongo());
+
+			ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().remove(plataform);
+
+			localDirPlataformDecorator.plataformResolverInputPath();
 
 		} catch (Exception e) {
 
-			assertTrue("Mongo binary not found".equalsIgnoreCase(e.getLocalizedMessage()));
+			assertTrue("Input directory not found".equalsIgnoreCase(e.getLocalizedMessage()));
+		}
+	}
+
+	@Test
+	public void testPlataformResolverOutPutPathErro() {
+		try {
+
+			LocalDirPlataformDecorator localDirPlataformDecorator = new LocalDirPlataformDecorator(
+					new LocalDirBinaryMongo());
+
+			ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().remove(plataform);
+
+			localDirPlataformDecorator.plataformResolverOutputPath();
+
+		} catch (Exception e) {
+
+			assertTrue("Output directory not found".equalsIgnoreCase(e.getLocalizedMessage()));
 		}
 	}
 

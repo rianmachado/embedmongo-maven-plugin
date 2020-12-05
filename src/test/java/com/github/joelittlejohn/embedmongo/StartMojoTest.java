@@ -15,6 +15,7 @@
  */
 package com.github.joelittlejohn.embedmongo;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -183,6 +184,36 @@ public class StartMojoTest {
 			assertNull(startMojo.getProject());
 			assertTrue("No mongod process found, it appears embedmongo:start was not called"
 					.equalsIgnoreCase(e.getLocalizedMessage()));
+		}
+
+	}
+	
+	
+	@Test
+	public void testExecuteStartStopPortNotEmpty() {
+		
+		StartMojo startMojo = new StartMojo();
+		 MavenProject mavenProject = new MavenProject();
+		mavenProject.getProperties().put("embedmongo.port", "25118");
+		startMojo.setProject(mavenProject);
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+		startMojo.setLogging(Loggers.LoggingStyle.CONSOLE.name());
+		startMojo.onSkip();
+
+		StopMojo stopMojo = new StopMojo();
+		stopMojo.setProject(new MavenProject());
+		stopMojo.setPort(25118);
+		stopMojo.setVersion("2.7.1");
+		stopMojo.setPluginContext(startMojo.getPluginContext());
+		try {
+			startMojo.executeStart();
+			stopMojo.execute();
+			assertEquals(25118, startMojo.getPort().intValue());
+		} catch (MojoExecutionException | MojoFailureException e) {
+			e.printStackTrace();
 		}
 
 	}
