@@ -44,14 +44,16 @@ public class ConfigurationDirectoryMongoTest {
 	public static void init() throws IOException {
 		try {
 
-			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
+			outDirOs = Paths.get(new LocalDirBinaryMongo().buildPathOutputDir());
 
 			if (!outDirOs.toString().contains(".embedmongo")) {
 				throw new RuntimeException(
 						"DANGER..... OS TESTES PODERAO PAGAR DADOS DA HOME CASO NAO ESTEJA COM O DIRETORIO .embedmongo CONFIGURADO CORRETAMENTE");
 			}
 
-			Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			if (Files.exists(outDirOs)) {
+				Files.walk(outDirOs).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -66,15 +68,19 @@ public class ConfigurationDirectoryMongoTest {
 					"DANGER..... OS TESTES PODERAO PAGAR DADOS DA HOME CASO NAO ESTEJA COM O DIRETORIO .embedmongo CONFIGURADO CORRETAMENTE");
 		}
 
+		if (Files.exists(outDirOs)) {
+			File directory = new File(outDirOs.toString());
+			directory.delete();
+		}
+		
 		try {
-
-			if (Files.exists(outDirOs)) {
-				Files.delete(outDirOs);
-			}
-
+			ConfigurationDirectoryMongoBinary.setInstance(null);
+			ConfigurationDirectoryMongoBinary.getInstance();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 	}
 
 	@Test
@@ -92,6 +98,7 @@ public class ConfigurationDirectoryMongoTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 
 }
