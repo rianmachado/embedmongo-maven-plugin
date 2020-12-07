@@ -132,11 +132,9 @@ public class StartMojoTest {
 		}
 
 	}
-	
-	
+
 	@Test
 	public void testExecuteStartStopRandomPortTrue() {
-
 
 		StartMojo startMojo = new StartMojo();
 		startMojo.setProject(new MavenProject());
@@ -161,7 +159,6 @@ public class StartMojoTest {
 		}
 
 	}
-	
 
 	@Test
 	public void testExecuteStartStopErro() {
@@ -187,13 +184,12 @@ public class StartMojoTest {
 		}
 
 	}
-	
-	
+
 	@Test
 	public void testExecuteStartStopPortNotEmpty() {
-		
+
 		StartMojo startMojo = new StartMojo();
-		 MavenProject mavenProject = new MavenProject();
+		MavenProject mavenProject = new MavenProject();
 		mavenProject.getProperties().put("embedmongo.port", "25118");
 		startMojo.setProject(mavenProject);
 		startMojo.setDownloadPath("");
@@ -212,6 +208,44 @@ public class StartMojoTest {
 			startMojo.executeStart();
 			stopMojo.execute();
 			assertEquals(25118, startMojo.getPort().intValue());
+		} catch (MojoExecutionException | MojoFailureException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Test
+	public void testExecuteStartStopLogFile() {
+
+		int port = 0;
+		try {
+			port = NetworkUtils.allocateRandomPort();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		StartMojo startMojo = new StartMojo();
+		MavenProject mavenProject = new MavenProject();
+		startMojo.setLogFile("embedmongo.log");
+		startMojo.setLogFileEncoding("utf-8");
+		startMojo.setProject(mavenProject);
+		startMojo.setDownloadPath("");
+		startMojo.setSettings(new Settings());
+		startMojo.setPort(port);
+		startMojo.setVersion("2.7.1");
+		startMojo.setPluginContext(new HashMap<>());
+		startMojo.setLogging(Loggers.LoggingStyle.FILE.name());
+		startMojo.onSkip();
+
+		StopMojo stopMojo = new StopMojo();
+		stopMojo.setProject(mavenProject);
+		stopMojo.setPort(port);
+		stopMojo.setVersion("2.7.1");
+		stopMojo.setPluginContext(startMojo.getPluginContext());
+		try {
+			startMojo.executeStart();
+			stopMojo.execute();
+			assertNotNull(startMojo.getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME));
 		} catch (MojoExecutionException | MojoFailureException e) {
 			e.printStackTrace();
 		}

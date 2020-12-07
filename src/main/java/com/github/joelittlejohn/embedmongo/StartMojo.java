@@ -144,13 +144,10 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	public void executeStart() throws MojoExecutionException, MojoFailureException {
 		MongodExecutable executable;
 
-		try {
-			loadBinaryMongoFromResource();
-		} catch (IOException ioException) {
-			throw new MojoExecutionException("Failed get MongoDB distribution from resources", ioException);
-		}
 
 		try {
+			
+			loadBinaryMongoFromResource();
 
 			final List<String> mongodArgs = this.createMongodArgsList();
 
@@ -264,4 +261,13 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		this.logging = logging;
 	}
 
+	public void setLogFile(String logFile) {
+		this.logFile = logFile;
+	}
+
+	public void setLogFileEncoding(String logFileEncoding) {
+		this.logFileEncoding = logFileEncoding;
+	}
+
+	
 }

@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -199,6 +201,26 @@ public class FileCopyBinaryTest {
 		} catch (Exception e) {
 
 			assertTrue("Output directory not found".equalsIgnoreCase(e.getLocalizedMessage()));
+		}
+	}
+
+	@Test
+	public void testLoadBinaryMongoFromResourceErro() {
+		try {
+
+			StartMojo start = new StartMojo();
+
+			ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().remove(plataform);
+
+			start.executeStart();
+
+		} catch (MojoExecutionException | MojoFailureException e) {
+
+			assertTrue(e instanceof MojoExecutionException);
+
+		} catch (IOException e) {
+
+			e.printStackTrace();
 		}
 	}
 
