@@ -18,7 +18,7 @@ package com.github.joelittlejohn.embedmongo;
 import java.io.File;
 import java.io.IOException;
 
-import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
 
 import de.flapdoodle.embed.process.distribution.Platform;
 
@@ -34,7 +34,7 @@ public class LocalCheckDirPlataformDecorator extends LocalDirDecorator {
 	}
 
 	private String checkPlatformOutputDirectory(String basePath) throws IOException {
-		String dir = ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName()
+		String dir = GlobalConfiguration.getInstance().getMapDirectoryName()
 				.get(Platform.detect().name());
 		File file = new File(basePath + dir).getParentFile().getAbsoluteFile();
 		if (!file.exists()) {

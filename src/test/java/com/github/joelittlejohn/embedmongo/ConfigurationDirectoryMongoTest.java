@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
 
 /**
  * @author rianmachado@gmail.com
@@ -74,8 +74,8 @@ public class ConfigurationDirectoryMongoTest {
 		}
 		
 		try {
-			ConfigurationDirectoryMongoBinary.setInstance(null);
-			ConfigurationDirectoryMongoBinary.getInstance();
+			GlobalConfiguration.setInstance(null);
+			GlobalConfiguration.getInstance();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,11 +86,11 @@ public class ConfigurationDirectoryMongoTest {
 	@Test
 	public void testGetInstanceCreateDirectoryHomeMongoEmbedded() {
 
-		ConfigurationDirectoryMongoBinary.setInstance(null);
+		GlobalConfiguration.setInstance(null);
 
 		try {
 
-			ConfigurationDirectoryMongoBinary.getInstance();
+			GlobalConfiguration.getInstance();
 
 			assertTrue(Files.exists(outDirOs));
 

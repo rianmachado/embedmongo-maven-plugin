@@ -23,14 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.yaml.snakeyaml.Yaml;
 
+import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.process.distribution.Platform;
 
 /**
  * @author rianmachado@gmail.com
  */
-public final class ConfigurationDirectoryMongoBinary {
+public final class GlobalConfiguration {
 
-	private static ConfigurationDirectoryMongoBinary instance;
+	private static GlobalConfiguration instance;
 
 	public static final String EMBEDMONGOHOME = java.nio.file.Paths.get(System.getProperty("user.home"))
 			.resolve(".embedmongo").toString();
@@ -38,6 +39,7 @@ public final class ConfigurationDirectoryMongoBinary {
 	private static String mongoBinariWindowsVersion = "mongo-binari-windows-version";
 	private static String mongoBinariMacosVersion = "mongo-binari-macos-version";
 	private static String mongoBinariLinuxVersion = "mongo-binari-linux-version";
+	public final static Map<String, MongodExecutable> mapMongoController = new ConcurrentHashMap<>();
 
 	private static final String DIRECTORYNAMEFORWINDOWS = "directory-name-for-windows";
 	private static final String DIRECTORYNAMEFORMACOS = "directory-name-for-macos";
@@ -47,20 +49,20 @@ public final class ConfigurationDirectoryMongoBinary {
 	private Map<String, String> mapDirectoryName = new ConcurrentHashMap<>();
 	private String rootDir;
 
-	public static ConfigurationDirectoryMongoBinary getInstance() throws IOException {
+	public static GlobalConfiguration getInstance() throws IOException {
 
-		synchronized (ConfigurationDirectoryMongoBinary.class) {
+		synchronized (GlobalConfiguration.class) {
 			if (instance == null) {
-				instance = new ConfigurationDirectoryMongoBinary();
+				instance = new GlobalConfiguration();
 				loadProperties(instance);
 			}
 			return instance;
 		}
 	}
 
-	private static void loadProperties(ConfigurationDirectoryMongoBinary app) throws IOException {
+	private static void loadProperties(GlobalConfiguration app) throws IOException {
 
-		File embedmongoHome = new File(ConfigurationDirectoryMongoBinary.EMBEDMONGOHOME);
+		File embedmongoHome = new File(GlobalConfiguration.EMBEDMONGOHOME);
 
 		if (!embedmongoHome.exists()) {
 			boolean createdHomeDirEmbedmongo = embedmongoHome.mkdir();
@@ -70,7 +72,7 @@ public final class ConfigurationDirectoryMongoBinary {
 		}
 
 		Yaml yaml = new Yaml();
-		InputStream inputStream = ConfigurationDirectoryMongoBinary.class.getClassLoader()
+		InputStream inputStream = GlobalConfiguration.class.getClassLoader()
 				.getResourceAsStream("application.yaml");
 		Map<String, Object> objPropertie = yaml.load(inputStream);
 
@@ -113,8 +115,8 @@ public final class ConfigurationDirectoryMongoBinary {
 		return mapDirectoryName;
 	}
 
-	public static void setInstance(ConfigurationDirectoryMongoBinary instance) {
-		ConfigurationDirectoryMongoBinary.instance = instance;
+	public static void setInstance(GlobalConfiguration instance) {
+		GlobalConfiguration.instance = instance;
 	}
 	
 	

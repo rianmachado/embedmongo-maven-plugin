@@ -17,7 +17,7 @@ package com.github.joelittlejohn.embedmongo;
 
 import java.io.IOException;
 
-import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
 
 import de.flapdoodle.embed.process.distribution.Platform;
 
@@ -43,7 +43,7 @@ public class LocalDirPlataformDecorator extends LocalDirDecorator {
 	}
 
 	public String plataformResolverInputPath() throws IOException {
-		String directoryMongoBinary = ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary()
+		String directoryMongoBinary = GlobalConfiguration.getInstance().getMapMongoBinary()
 				.get(Platform.detect().name());
 		if (directoryMongoBinary == null) {
 			throw new IOException("Input directory not found");
@@ -52,7 +52,7 @@ public class LocalDirPlataformDecorator extends LocalDirDecorator {
 	}
 
 	public String plataformResolverOutputPath() throws IOException {
-		String directoryName = ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName()
+		String directoryName = GlobalConfiguration.getInstance().getMapDirectoryName()
 				.get(Platform.detect().name());
 		if (directoryName == null) {
 			throw new IOException("Output directory not found");

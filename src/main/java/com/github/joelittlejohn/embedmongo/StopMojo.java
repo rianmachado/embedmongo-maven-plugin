@@ -20,6 +20,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
+
 import de.flapdoodle.embed.mongo.MongodProcess;
 
 /**
@@ -29,11 +31,13 @@ import de.flapdoodle.embed.mongo.MongodProcess;
 @Mojo(name="stop", defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class StopMojo extends AbstractEmbeddedMongoMojo {
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void executeStart() throws MojoExecutionException, MojoFailureException {
         MongodProcess mongod = (MongodProcess) getPluginContext().get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME);
 
         if (mongod != null) {
+			GlobalConfiguration.mapMongoController.get(StartMojo.MONGOD_CONTEXT_PROPERTY_NAME).cleanup();
             mongod.stop();
         } else {
             throw new MojoFailureException("No mongod process found, it appears embedmongo:start was not called");

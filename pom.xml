@@ -12,7 +12,7 @@
 
 	<groupId>com.github.joelittlejohn.embedmongo</groupId>
 	<artifactId>embedmongo-maven-plugin</artifactId>
-	<version>0.4.3-SNAPSHOT</version>
+	<version>0.5.0</version>
 
 	<packaging>maven-plugin</packaging>
 

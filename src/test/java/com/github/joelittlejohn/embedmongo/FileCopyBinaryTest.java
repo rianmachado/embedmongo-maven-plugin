@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
 
 import de.flapdoodle.embed.process.distribution.Platform;
 
@@ -56,9 +56,9 @@ public class FileCopyBinaryTest {
 	public static void init() throws IOException {
 		try {
 
-			valueBinaryPlataform = ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().get(plataform);
+			valueBinaryPlataform = GlobalConfiguration.getInstance().getMapMongoBinary().get(plataform);
 
-			directoryNamePlataform = ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName()
+			directoryNamePlataform = GlobalConfiguration.getInstance().getMapDirectoryName()
 					.get(plataform);
 
 			outDirOs = Paths.get(new LocalCheckDirPlataformDecorator(new LocalDirBinaryMongo()).buildPathOutputDir());
@@ -103,14 +103,14 @@ public class FileCopyBinaryTest {
 	public void reconfigurationMapProperties() {
 		try {
 
-			if (ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().containsValue(fileZipMock)
-					|| !ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().containsKey(plataform)
-					|| !ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().containsKey(plataform)) {
+			if (GlobalConfiguration.getInstance().getMapMongoBinary().containsValue(fileZipMock)
+					|| !GlobalConfiguration.getInstance().getMapMongoBinary().containsKey(plataform)
+					|| !GlobalConfiguration.getInstance().getMapDirectoryName().containsKey(plataform)) {
 
-				ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().put(plataform,
+				GlobalConfiguration.getInstance().getMapMongoBinary().put(plataform,
 						valueBinaryPlataform);
 
-				ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().put(plataform,
+				GlobalConfiguration.getInstance().getMapDirectoryName().put(plataform,
 						directoryNamePlataform);
 			}
 
@@ -148,7 +148,7 @@ public class FileCopyBinaryTest {
 
 			StartMojo startMojo = new StartMojo();
 
-			ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().put(plataform, fileZipMock);
+			GlobalConfiguration.getInstance().getMapMongoBinary().put(plataform, fileZipMock);
 
 			startMojo.loadBinaryMongoFromResource();
 
@@ -177,7 +177,7 @@ public class FileCopyBinaryTest {
 			LocalDirPlataformDecorator localDirPlataformDecorator = new LocalDirPlataformDecorator(
 					new LocalDirBinaryMongo());
 
-			ConfigurationDirectoryMongoBinary.getInstance().getMapMongoBinary().remove(plataform);
+			GlobalConfiguration.getInstance().getMapMongoBinary().remove(plataform);
 
 			localDirPlataformDecorator.plataformResolverInputPath();
 
@@ -194,7 +194,7 @@ public class FileCopyBinaryTest {
 			LocalDirPlataformDecorator localDirPlataformDecorator = new LocalDirPlataformDecorator(
 					new LocalDirBinaryMongo());
 
-			ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().remove(plataform);
+			GlobalConfiguration.getInstance().getMapDirectoryName().remove(plataform);
 
 			localDirPlataformDecorator.plataformResolverOutputPath();
 
@@ -210,7 +210,7 @@ public class FileCopyBinaryTest {
 
 			StartMojo start = new StartMojo();
 
-			ConfigurationDirectoryMongoBinary.getInstance().getMapDirectoryName().remove(plataform);
+			GlobalConfiguration.getInstance().getMapDirectoryName().remove(plataform);
 
 			start.executeStart();
 

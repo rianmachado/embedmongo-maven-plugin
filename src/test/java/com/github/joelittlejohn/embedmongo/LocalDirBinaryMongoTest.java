@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.github.joelittlejohn.embedmongo.configuration.ConfigurationDirectoryMongoBinary;
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
 
 /**
  * @author rianmachado@gmail.com
@@ -42,7 +42,7 @@ public class LocalDirBinaryMongoTest {
 
 	@Test
 	public void testBuildPathInputDir() throws IOException {
-		assertEquals(ConfigurationDirectoryMongoBinary.getInstance().getRootDir(),
+		assertEquals(GlobalConfiguration.getInstance().getRootDir(),
 				localDirBinaryMongo.buildPathInputDir());
 	}
 

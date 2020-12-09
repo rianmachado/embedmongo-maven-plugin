@@ -29,6 +29,7 @@ import org.apache.maven.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.joelittlejohn.embedmongo.configuration.GlobalConfiguration;
 import com.github.joelittlejohn.embedmongo.log.Loggers;
 import com.github.joelittlejohn.embedmongo.log.Loggers.LoggingStyle;
 
@@ -144,13 +145,10 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 	public void executeStart() throws MojoExecutionException, MojoFailureException {
 		MongodExecutable executable;
 
-
 		try {
-			
 			loadBinaryMongoFromResource();
-
+			
 			final List<String> mongodArgs = this.createMongodArgsList();
-
 			ICommandLinePostProcessor commandLinePostProcessor = (distribution, args) -> {
 				args.addAll(mongodArgs);
 				return args;
@@ -182,6 +180,7 @@ public class StartMojo extends AbstractEmbeddedMongoMojo {
 		try {
 			MongodProcess mongod = executable.start();
 			getPluginContext().put(MONGOD_CONTEXT_PROPERTY_NAME, mongod);
+			GlobalConfiguration.mapMongoController.put(MONGOD_CONTEXT_PROPERTY_NAME, executable);
 		} catch (IOException e) {
 			throw new MojoExecutionException("Unable to start the mongod", e);
 		}
